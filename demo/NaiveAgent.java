@@ -152,7 +152,7 @@ public class NaiveAgent implements Runnable {
 				int dx,dy;
 				{
 					// random pick up a pig
-					ABObject pig = pigs.get(randomGenerator.nextInt(pigs.size()));
+					ABObject pig = GetTopPig(vision);
 					
 					Point _tpt = pig.getCenter();// if the target is very close to before, randomly choose a
 					// point near it
@@ -203,7 +203,6 @@ public class NaiveAgent implements Runnable {
 						System.out.println("Release Point: " + releasePoint);
 						System.out.println("Release Angle: "
 								+ Math.toDegrees(releaseAngle));
-                        System.out.println("In NaiveAgent");
 						int tapInterval = 0;
 						switch (aRobot.getBirdTypeOnSling()) 
 						{
@@ -270,6 +269,22 @@ public class NaiveAgent implements Runnable {
 
 		}
 		return state;
+	}
+
+	public ABObject GetTopPig(Vision vision)
+	{
+		List<ABObject> pigs = vision.findPigsMBR();
+		int maxIndex = 0;
+		Double maxHeight = Double.MAX_VALUE;
+		for(int i=0;i<pigs.size();i++)
+		{
+			if(pigs.get(i).getCenter().getY()<maxHeight)
+			{
+				maxHeight = pigs.get(i).getCenter().getY();
+				maxIndex = i;
+			}
+		}
+		return pigs.get(maxIndex);
 	}
 
 	public static void main(String args[]) {
