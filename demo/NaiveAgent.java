@@ -141,7 +141,6 @@ public class NaiveAgent implements Runnable {
  		List<ABObject> pigs = vision.findPigsMBR();
 
 		GameState state = aRobot.getState();
-
 		// if there is a sling, then play, otherwise just skip.
 		if (sling != null) {
 
@@ -151,17 +150,20 @@ public class NaiveAgent implements Runnable {
 				Shot shot = new Shot();
 				int dx,dy;
 				{
+					ProbeBlocks(vision);
 					// random pick up a pig
 					ABObject pig = GetTopPig(vision);
 					
-					Point _tpt = pig.getCenter();// if the target is very close to before, randomly choose a
+					Point _tpt = WeakJoint(vision, pig);
+
+					// if the target is very close to before, randomly choose a
 					// point near it
-					if (prevTarget != null && distance(prevTarget, _tpt) < 10) {
-						double _angle = randomGenerator.nextDouble() * Math.PI * 2;
-						_tpt.x = _tpt.x + (int) (Math.cos(_angle) * 10);
-						_tpt.y = _tpt.y + (int) (Math.sin(_angle) * 10);
-						System.out.println("Randomly changing to " + _tpt);
-					}
+					// if (prevTarget != null && distance(prevTarget, _tpt) < 10) {
+					// 	double _angle = randomGenerator.nextDouble() * Math.PI * 2;
+					// 	_tpt.x = _tpt.x + (int) (Math.cos(_angle) * 10);
+					// 	_tpt.y = _tpt.y + (int) (Math.sin(_angle) * 10);
+					// 	System.out.println("Randomly changing to " + _tpt);
+					// }
 
 					prevTarget = new Point(_tpt.x, _tpt.y);
 
@@ -171,7 +173,7 @@ public class NaiveAgent implements Runnable {
 					// do a high shot when entering a level to find an accurate velocity
 					if (firstShot && pts.size() > 1) 
 					{
-						releasePoint = pts.get(1);
+						releasePoint = pts.get(0);
 					}
 					else if (pts.size() == 1)
 						releasePoint = pts.get(0);
@@ -285,6 +287,60 @@ public class NaiveAgent implements Runnable {
 			}
 		}
 		return pigs.get(maxIndex);
+	}
+
+	public Point WeakJoint(Vision vision, ABObject pig)
+	{
+		List<ABObject> blocks = vision.findBlocksMBR();
+		ABObject u_target_block=null;
+		ABObject l_target_block=null;
+		Double u_min_dist = Double.MAX_VALUE;
+		Double l_min_dist = Double.MAX_VALUE;
+		for(int i=0; i<blocks.size();i++)
+		{
+			ABObject b = blocks.get(i);
+			if(pig.y-b.y>0 && pig.x>(b.x-b.width/2) && pig.x<(b.x+b.width/2) && u_min_dist>pig.y-b.y)
+			{
+				u_min_dist = ((double)pig.y-(double)b.y);
+				u_target_block = b; 
+			}
+			else if(b.y-pig.y>0 && pig.x>(b.x-b.width/2) && pig.x<(b.x+b.width/2) && l_min_dist>b.y-pig.y)
+			{
+				l_min_dist = ((double)b.y-(double)pig.y);
+				l_target_block = b; 
+			}
+		}
+		if(u_target_block==null && l_target_block!=null)
+		{
+			int ximpactAt=0;
+			if(pig.x-l_target_block.x>15)
+				ximpactAt = pig.x-(int)((l_target_block.width/2));
+			else
+				ximpactAt = pig.x;
+			return  new Point(ximpactAt, l_target_block.y-l_target_block.height/2 - 3);
+		}
+		else if(u_target_block!=null && l_target_block==null)
+		{
+			return  new Point(u_target_block.x-(u_target_block.width/2), u_target_block.y-u_target_block.height/2);
+		}
+		else if(u_target_block!=null && l_target_block!=null)
+		{
+			return  new Point(l_target_block.x-(l_target_block.width/2), l_target_block.y-l_target_block.height/2);
+		}
+		else
+			return pig.getCenter();
+	}
+
+	public void ProbeBlocks(Vision vision)
+	{
+		List<ABObject> all_blocks = vision.findBlocksRealShape();
+		System.out.println("Block Id\tShape\tMaterial");
+		ABObject block=null;
+		for(int i=0;i<all_blocks.size();i++)
+		{
+			block = all_blocks.get(i);
+			System.out.println(block.id+"\t\t"+block.shape+"\t\t"+block.type);
+		}
 	}
 
 	public static void main(String args[]) {
