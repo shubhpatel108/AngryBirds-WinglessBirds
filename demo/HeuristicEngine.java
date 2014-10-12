@@ -17,6 +17,7 @@ public class HeuristicEngine {
     List<ABObject> ice_blocks;
     List<ABObject> TNT;
     List<ABObject> birds;
+    List<ABObject> hills;
     BufferedImage image;
     Vision vision;
 
@@ -29,6 +30,19 @@ public class HeuristicEngine {
 		this.stone_blocks = vision.getMBRVision().constructABObjects(vision.getMBRVision().findStonesMBR(),ABType.Stone);
 		this.ice_blocks = vision.getMBRVision().constructABObjects(vision.getMBRVision().findIceMBR(),ABType.Ice);
 		this.TNT = vision.getMBRVision().constructABObjects(vision.getMBRVision().findTNTsMBR(), ABType.TNT);
+		this.hills = findAllHills(all_objects);
     }
 
+    List<ABObject> findAllHills(List<ABObject> all_objects)
+    {
+		List<ABObject> hills = new LinkedList<ABObject>();
+		for(ABObject obj : all_objects )
+		{
+		    if(obj.type == ABType.Hill)
+		    {
+		        hills.add(obj);
+		    }
+		}
+		return hills;
+    }
 }
