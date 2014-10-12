@@ -11,13 +11,24 @@ import ab.vision.Vision;
 public class HeuristicEngine {
 
     List<ABObject> allObjects;
+
+    List<ABObject> wood_blocks;
+    List<ABObject> stone_blocks;
+    List<ABObject> ice_blocks;
+    List<ABObject> TNT;
+    List<ABObject> birds;
     BufferedImage image;
     Vision vision;
 
     public HeuristicEngine(List<ABObject> all_objects, BufferedImage image) {
-    	this.allObjects = all_objects;
-        this.image = image;
-	    vision = new Vision(image);
+		this.allObjects = all_objects;
+		this.image = image;
+		this.vision = new Vision(image);
+		this.birds = vision.findBirdsMBR();
+		this.wood_blocks = vision.getMBRVision().constructABObjects(vision.getMBRVision().findWoodMBR(), ABType.Wood);
+		this.stone_blocks = vision.getMBRVision().constructABObjects(vision.getMBRVision().findStonesMBR(),ABType.Stone);
+		this.ice_blocks = vision.getMBRVision().constructABObjects(vision.getMBRVision().findIceMBR(),ABType.Ice);
+		this.TNT = vision.getMBRVision().constructABObjects(vision.getMBRVision().findTNTsMBR(), ABType.TNT);
     }
-}
 
+}
