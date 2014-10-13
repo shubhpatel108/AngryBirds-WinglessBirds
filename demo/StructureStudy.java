@@ -27,7 +27,7 @@ public class StructureStudy {
     int LENGTH =20;
     double[][][] _vector;
 
-    public VectorQuantizer(List<ABObject> pigs, List<ABObject> TNT, List<ABObject> ice, List<ABObject> stone, List<ABObject> wood) {
+    public StructureStudy(List<ABObject> pigs, List<ABObject> TNT, List<ABObject> ice, List<ABObject> stone, List<ABObject> wood) {
         this._pigs = pigs;
         this._wood = wood;
         this._ice = ice;
@@ -36,5 +36,56 @@ public class StructureStudy {
         this._vector = new double[LENGTH][LENGTH][5];
     }
 
+    /**
+     * get boundry of the structure
+     */
+    public Rectangle getStructureOutline() {
+        _pigPoints = decomposeToPoints(_pigs);
+        _woodPoints = decomposeToPoints(_wood);
+        _icePoints = decomposeToPoints(_ice);
+        _stonePoints = decomposeToPoints(_stone);
+        TNTPoints = decomposeToPoints(TNT);
+        _allPoints = new ArrayList<Point>(0);
+        _allPoints.addAll(_pigPoints);
+        _allPoints.addAll(_woodPoints);
+        _allPoints.addAll(_icePoints);
+        _allPoints.addAll(_stonePoints);
+        _allPoints.addAll(TNTPoints);
+        // Find the bounding rectangle
+        int minX = 10000;
+        int maxX = 0;
+        int minY = 10000;
+        int maxY = 0;
+
+        for(Point p : _allPoints) {
+            int x = (int)p.getX();
+            int y = (int)p.getY();
+            if(x < minX) minX = x;
+            if(x > maxX) maxX = x;
+            if(y < minY) minY = y;
+            if(y > maxY) maxY = y;
+        }
+
+        leftX = minX;
+        rightX = maxX;
+        topY = minY;
+        bottomY = maxY;
+
+        return new Rectangle(minX, minY, (maxX - minX + 1), (maxY - minY + 1));
+    }
+
+    public static ArrayList<Point> decomposeToPoints(List<ABObject> object) {
+        ArrayList<Point> objectPoints = new ArrayList<Point>(0);
+        for (Rectangle r:object) {
+            int x = (int)r.getX();
+            int y = (int)r.getY();
+            int width = (int)r.getWidth();
+            int height = (int)r.getHeight();
+            for (int i = x; i < x+width; i++)
+                for (int j = y; j < y+height; j++)
+                    objectPoints.add(new Point(i,j));
+        }
+        return objectPoints;
+    }
 }
 
