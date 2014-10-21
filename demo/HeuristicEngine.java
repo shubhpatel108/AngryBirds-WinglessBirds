@@ -52,14 +52,10 @@ public class HeuristicEngine {
     public void calcSupportFactor()
     {
         ArrayList<ABObject> candidateBlocks = new ArrayList<ABObject>();
-        for(ABObject block:wood_blocks)
-			allBlocks.add(block)
-        for(ABObject block:stones_blocks)
-			allBlocks.add(block)
-        for(ABObject block:ice_blocks)
-			allBlocks.add(block)
-        for(ABObject block:TNT)
-			allBlocks.add(block)
+		allBlocks.addAll(block)
+		allBlocks.addAll(block)
+		allBlocks.addAll(block)
+		allBlocks.addAll(block)
         for(ABObject block: allBlocks)
         {
             for(ABObject pig:pigs)
