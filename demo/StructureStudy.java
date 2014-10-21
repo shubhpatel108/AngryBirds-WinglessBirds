@@ -87,5 +87,44 @@ public class StructureStudy {
         }
         return objectPoints;
     }
-}
 
+    double[][][] calulate_vectors(Rectangle structure) 
+    {
+        _vector = new double[LENGTH][LENGTH][5];
+        vectorize(structure, _pigPoints, 0);
+        vectorize(structure, _woodPoints, 1);
+        vectorize(structure, _icePoints, 2);
+        vectorize(structure, _stonePoints, 3);
+        vectorize(structure,TNTPoints,4);
+        scale_values(structure);
+        return _vector;
+    }
+
+    void vectorize(Rectangle structure, List<Point> object, int index) 
+    {
+        int topY = (int)structure.getY();
+        int leftX = (int)structure.getX();
+        for (Point p: object) {
+            int x = (int)((p.getX() - leftX)*LENGTH/structure.getWidth());
+            int y = (int)((p.getY() - topY)*LENGTH/structure.getHeight());
+            if (x >= LENGTH) x = LENGTH-1;
+            if (y >= LENGTH) y = LENGTH-1;
+            _vector[x][y][index]++;
+        }
+    }
+
+    void scale_values(Rectangle structure)
+    {
+        int blockPixels = (int)(structure.getHeight()*structure.getWidth()/(LENGTH*LENGTH));
+        for (int i = 0; i < LENGTH; i++)
+        {
+            for (int j = 0; j < LENGTH; j++)
+            {
+                for (int k = 0; k < 5; k++)
+                {
+                    _vector[i][j][k] = _vector[i][j][k]*100.0/blockPixels;
+                }
+            }
+        }
+    }
+}

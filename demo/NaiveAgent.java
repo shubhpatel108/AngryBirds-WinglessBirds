@@ -25,6 +25,8 @@ import ab.utils.StateUtil;
 import ab.vision.ABObject;
 import ab.vision.GameStateExtractor.GameState;
 import ab.vision.Vision;
+import ab.demo.HeuristicEngine;
+import ab.demo.StructureStudy;
 
 public class NaiveAgent implements Runnable {
 
@@ -151,7 +153,11 @@ public class NaiveAgent implements Runnable {
 				int dx,dy;
 				{
 					ProbeBlocks(vision);
-					// random pick up a pig
+					// HeuristicEngine he = new HeuristicEngine();
+					// StructureStudy ss = new StructureStudy(pigs, TNT, ice, stone, wood);
+					// Rectangle outerRectangle = ss.getStructureOutline();
+					// double[][][] vectoredStructure = ss.calculate_vector(outerRectangle);
+
 					ABObject pig = GetTopPig(vision);
 					
 					Point _tpt = WeakJoint(vision, pig);
