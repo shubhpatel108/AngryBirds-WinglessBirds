@@ -49,6 +49,11 @@ public class HeuristicEngine {
 		return hills;
     }
 
+    int getBlockDensity(ABObject block)
+    {
+        return block.type==ABType.Wood?woodDensity:block.type==ABType.Stone?stoneDensity:iceDensity;
+    }
+
     public void calcSupportFactor()
     {
         ArrayList<ABObject> allBlocks = new ArrayList<ABObject>();
@@ -71,15 +76,12 @@ public class HeuristicEngine {
                 {
                     if(line.intersects(obj))
                     {
-                        support+=obj.getHeight()/obj.getWidth();
+                        sup = obj.getHeight()/obj.getWidth();
+                        support+= sup/(obj.area*getBlockDensity(obj));
                         inline_block_count++;
                     }
                 }
                 object.supportFactor+=support/inline_block_count;
-                System.out.print(object.id)
-                System.out.print("---")
-                System.out.print(object.supportFactor)
-                System.out.print("+++")
             }
         }
         return;
