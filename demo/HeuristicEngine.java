@@ -7,6 +7,7 @@ import java.util.*;
 import java.awt.Rectangle;
 import java.awt.Point;
 import ab.vision.Vision;
+import java.awt.geom.Line2D;
 
 public class HeuristicEngine {
 
@@ -46,5 +47,39 @@ public class HeuristicEngine {
 		    }
 		}
 		return hills;
+    }
+
+    public void calcSupportFactor()
+    {
+        ArrayList<ABObject> candidateBlocks = new ArrayList<ABObject>();
+        for(ABObject block:wood_blocks)
+			allBlocks.add(block)
+        for(ABObject block:stones_blocks)
+			allBlocks.add(block)
+        for(ABObject block:ice_blocks)
+			allBlocks.add(block)
+        for(ABObject block:TNT)
+			allBlocks.add(block)
+        for(ABObject block: allBlocks)
+        {
+            for(ABObject pig:pigs)
+            {
+                Line2D.Double line = new Line2D.Double(object.getCenterX(),object.getCenterY(),pig.getCenterX(),pig.getCenterY());
+                double support=0;
+                for(ABObject obj:allBlocks)
+                {
+                    if(line.intersects(obj))
+                    {
+                        support+=obj.getHeight()/obj.getWidth();
+                    }
+                }
+                object.supportFactor+=support;
+                System.out.print(object.id)
+                System.out.print("---")
+                System.out.print(object.supportFactor)
+                System.out.print("+++")
+            }
+        }
+        return;
     }
 }
