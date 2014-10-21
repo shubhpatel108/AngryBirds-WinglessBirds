@@ -51,7 +51,7 @@ public class HeuristicEngine {
 
     public void calcSupportFactor()
     {
-        ArrayList<ABObject> candidateBlocks = new ArrayList<ABObject>();
+        ArrayList<ABObject> allBlocks = new ArrayList<ABObject>();
         if(wood_blocks!=null)
 			allBlocks.addAll(wood_blocks)
         if(stones_blocks!=null)
@@ -66,14 +66,16 @@ public class HeuristicEngine {
             {
                 Line2D.Double line = new Line2D.Double(object.getCenterX(),object.getCenterY(),pig.getCenterX(),pig.getCenterY());
                 double support=0;
+                int inline_block_count = 0;
                 for(ABObject obj:allBlocks)
                 {
                     if(line.intersects(obj))
                     {
                         support+=obj.getHeight()/obj.getWidth();
+                        inline_block_count++;
                     }
                 }
-                object.supportFactor+=support;
+                object.supportFactor+=support/inline_block_count;
                 System.out.print(object.id)
                 System.out.print("---")
                 System.out.print(object.supportFactor)
