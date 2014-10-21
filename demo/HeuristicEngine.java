@@ -18,6 +18,7 @@ public class HeuristicEngine {
     List<ABObject> TNT;
     List<ABObject> birds;
     List<ABObject> hills;
+    List<ABObject> pigs;
     BufferedImage image;
     Vision vision;
 
@@ -31,6 +32,7 @@ public class HeuristicEngine {
 		this.ice_blocks = vision.getMBRVision().constructABObjects(vision.getMBRVision().findIceMBR(),ABType.Ice);
 		this.TNT = vision.getMBRVision().constructABObjects(vision.getMBRVision().findTNTsMBR(), ABType.TNT);
 		this.hills = findAllHills(all_objects);
+		this.pigs = vision.findPigsMBR();
     }
 
     List<ABObject> findAllHills(List<ABObject> all_objects)
