@@ -28,8 +28,10 @@ public class ABObject extends Rectangle {
  
 //is Hollow or not
  public boolean hollow = false;
- 
- 
+
+//numeric value of support an object provides to a pig to remain in equilibrium
+public double supportFactor;
+
 public ABObject(Rectangle mbr, ABType type) {
 	super(mbr);
 	this.type = type;
