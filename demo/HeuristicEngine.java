@@ -51,7 +51,8 @@ public class HeuristicEngine {
 
     int getBlockDensity(ABObject block)
     {
-        return block.type==ABType.Wood?woodDensity:block.type==ABType.Stone?stoneDensity:iceDensity;
+    	//density increases in scale of 2
+        return block.type==ABType.Wood? 2:block.type==ABType.Stone?4:1;
     }
 
     public void calcSupportFactor()
