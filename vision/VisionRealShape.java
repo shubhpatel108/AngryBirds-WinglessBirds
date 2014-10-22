@@ -350,4 +350,9 @@ public class VisionRealShape
 		for (ABObject obj : objs)
 			System.out.println(obj);
 	}
+
+    public int getGroundLevel()
+    {
+        return _ground;
+    }
 }

@@ -8,6 +8,7 @@ import java.awt.Rectangle;
 import java.awt.Point;
 import ab.vision.Vision;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 
 public class HeuristicEngine {
 
@@ -92,5 +93,41 @@ public class HeuristicEngine {
         if(TNT!=null)
 			allBlocks.addAll(TNT)
         return allBlocks;
+    }
+
+    public void calcDownwardFactor()
+    {
+        ArrayList<ABObject> allBlocks = getAllBlocks();
+
+        int ground_level = vision.getVisionRealShape().getGroundLevel();
+
+        for(ABObject obj: allBlocks)
+        {
+            int lateral_dist_sum = 0;
+            int density_sum = 0;
+            Line2D verticalLine = new Line2D.Double(obj.getCenter(), new Point2D.Double(obj.getCenterX(),ground_level));
+
+            for(ABObject block: allBlocks)
+            {
+                if(verticalLine.intersects(block))
+                    density_sum+=getBlockDensity(block);
+            }
+
+            for(ABObject pig: pigs)
+            {
+                if(pig.getMinY()>obj.getMaxY())
+                {
+                    lateral_dist_sum += Math.abs(verticalLine.getX1() - pig.getCenterX());
+                    Line2D lineToPig = new Line2D.Double(pig.getCenter(),new Point2D.Double(verticalLine.getX1(),pig.getCenterY()));
+                    for(ABObject intermediate_block: allBlocks)
+                    {
+                        if(lineToPig.intersects(intermediate_block))
+                            density_sum+=getBlockDensity(intermediate_block);
+                    }
+
+                }
+            }
+            obj.downwardFactor = lateral_dist_sum;
+        }
     }
 }
