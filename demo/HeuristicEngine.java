@@ -56,15 +56,7 @@ public class HeuristicEngine {
 
     public void calcSupportFactor()
     {
-        ArrayList<ABObject> allBlocks = new ArrayList<ABObject>();
-        if(wood_blocks!=null)
-			allBlocks.addAll(wood_blocks)
-        if(stones_blocks!=null)
-			allBlocks.addAll(stones_blocks)
-        if(ice_blocks!=null)
-			allBlocks.addAll(ice_blocks)
-        if(TNT!=null)
-			allBlocks.addAll(TNT)
+        ArrayList<ABObject> allBlocks = getAllBlocks();
         for(ABObject block: allBlocks)
         {
             for(ABObject pig:pigs)
@@ -85,5 +77,19 @@ public class HeuristicEngine {
             }
         }
         return;
+    }
+
+    public ArrayList<ABObject> getAllBlocks()
+    {
+        ArrayList<ABObject> allBlocks = new ArrayList<ABObject>();
+    	if(wood_blocks!=null)
+			allBlocks.addAll(wood_blocks)
+        if(stones_blocks!=null)
+			allBlocks.addAll(stones_blocks)
+        if(ice_blocks!=null)
+			allBlocks.addAll(ice_blocks)
+        if(TNT!=null)
+			allBlocks.addAll(TNT)
+        return allBlocks;
     }
 }
