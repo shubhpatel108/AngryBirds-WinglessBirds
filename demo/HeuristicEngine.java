@@ -132,4 +132,41 @@ public class HeuristicEngine {
             obj.downwardFactor = lateral_dist_sum;
         }
     }
+
+    public void makeAirBlocks(double[][][] structure, Rectangle outerRectangle)
+    {
+        boolean[][] air = isAir(structure);
+        for(int i = 0;i<air.length;i++)
+        {
+            for(int j = 0;j<air.length;j++)
+            {
+                if(air[i][j])
+                {
+                    Rectangle bounding_rec = new Rectangle((int)(outerRectangle.x+i*(outerRectangle.getWidth()/structure.length)),(int)(outerRectangle.y+j*(outerRectangle.getHeight()/structure.length)),(int)(outerRectangle.getWidth()/structure.length),(int)(outerRectangle.getHeight()/structure.length));
+                    air_blocks.add(new ABObject(bounding_rec,ABType.Air));
+                }
+            }
+        }
+    }
+
+    public boolean[][] isAir(double[][][] structure)
+    {
+        boolean[][] air = new boolean[structure.length][structure.length];
+        for(int i = 0;i<structure.length;i++)
+        {
+            for(int j=0;j<structure[i].length;j++)
+            {
+                double pig_percentage = structure[i][j][0];
+                double wood_percentage = structure[i][j][1];
+                double ice_percentage = structure[i][j][2];
+                double stone_percentage = structure[i][j][3];
+                double tnt_percentage = structure[i][j][4];
+                if(pig_percentage + wood_percentage + ice_percentage + stone_percentage + tnt_percentage<10)
+                    air[i][j] = true;
+                else
+                    air[i][j]  = false;
+            }
+        }
+        return air;
+    }
 }

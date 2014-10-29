@@ -157,7 +157,7 @@ public class NaiveAgent implements Runnable {
 					// StructureStudy ss = new StructureStudy(pigs, TNT, ice, stone, wood);
 					// Rectangle outerRectangle = ss.getStructureOutline();
 					// double[][][] vectoredStructure = ss.calculate_vector(outerRectangle);
-
+					//he.makeAirBlocks(vectoredStructure,outerRectangle);
 					ABObject pig = GetTopPig(vision);
 					
 					Point _tpt = WeakJoint(vision, pig);
