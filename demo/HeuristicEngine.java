@@ -23,6 +23,7 @@ public class HeuristicEngine {
     List<ABObject> pigs;
     BufferedImage image;
     Vision vision;
+    List<ABObject> air_blocks;
 
     public HeuristicEngine(List<ABObject> all_objects, BufferedImage image) {
 		this.allObjects = all_objects;
@@ -35,6 +36,7 @@ public class HeuristicEngine {
 		this.TNT = vision.getMBRVision().constructABObjects(vision.getMBRVision().findTNTsMBR(), ABType.TNT);
 		this.hills = findAllHills(all_objects);
 		this.pigs = vision.findPigsMBR();
+    this.air_blocks = new LinkedList<ABObject>();
     }
 
     List<ABObject> findAllHills(List<ABObject> all_objects)
@@ -122,7 +124,7 @@ public class HeuristicEngine {
                     for(ABObject intermediate_block: allBlocks)
                     {
                         if(lineToPig.intersects(intermediate_block))
-                            density_sum+=getBlockDensity(intermediate_block);
+                          density_sum+=getBlockDensity(intermediate_block);
                     }
 
                 }
