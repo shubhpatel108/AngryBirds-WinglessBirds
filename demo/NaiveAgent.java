@@ -3,9 +3,8 @@
  ** Copyright (c) 2014, XiaoYu (Gary) Ge, Stephen Gould, Jochen Renz
  **  Sahan Abeyasinghe,Jim Keys,  Andrew Wang, Peng Zhang
  ** All rights reserved.
- **This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License. 
- **To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ 
- *or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
+**This work is licensed under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+**To view a copy of this license, visit http://www.gnu.org/licenses/
  *****************************************************************************/
 package ab.demo;
 
@@ -25,8 +24,6 @@ import ab.utils.StateUtil;
 import ab.vision.ABObject;
 import ab.vision.GameStateExtractor.GameState;
 import ab.vision.Vision;
-import ab.demo.HeuristicEngine;
-import ab.demo.StructureStudy;
 
 public class NaiveAgent implements Runnable {
 
@@ -143,6 +140,7 @@ public class NaiveAgent implements Runnable {
  		List<ABObject> pigs = vision.findPigsMBR();
 
 		GameState state = aRobot.getState();
+
 		// if there is a sling, then play, otherwise just skip.
 		if (sling != null) {
 
@@ -180,6 +178,11 @@ public class NaiveAgent implements Runnable {
 					if (firstShot && pts.size() > 1) 
 					{
 						releasePoint = pts.get(0);
+					}
+					// do a high shot when entering a level to find an accurate velocity
+					if (firstShot && pts.size() > 1) 
+					{
+						releasePoint = pts.get(1);
 					}
 					else if (pts.size() == 1)
 						releasePoint = pts.get(0);

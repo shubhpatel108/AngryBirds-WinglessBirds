@@ -3,9 +3,8 @@
 ** Copyright (c) 2014,  XiaoYu (Gary) Ge, Stephen Gould, Jochen Renz
 ** Sahan Abeyasinghe , Jim Keys,  Andrew Wang, Peng Zhang
 ** All rights reserved.
-**This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License. 
-**To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ 
-*or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
+**This work is licensed under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+**To view a copy of this license, visit http://www.gnu.org/licenses/
 *****************************************************************************/
 package ab.demo.other;
 
@@ -18,11 +17,11 @@ import ab.vision.GameStateExtractor.GameState;
 /**
  * Schema for loading level 
  * */
-public class LoadingLevelSchema {
+public class LoadLevelSchema {
 private Proxy proxy;
 private boolean pageSwitch = false;
 
-public LoadingLevelSchema(Proxy proxy)
+public LoadLevelSchema(Proxy proxy)
 {
 	this.proxy = proxy;
 
@@ -184,16 +183,17 @@ private boolean loadLevel(GameState state,int i)
 	   }
 	   
 	   try {
-			Thread.sleep(2000);
+			Thread.sleep(2500);
 		} catch (InterruptedException e1) {
 			
 			e1.printStackTrace();
 		}
+	  
 	 
      }
      
    
-   //  System.out.println("current: " + current + "  i  " + i);
+
      return true;
 
 }
