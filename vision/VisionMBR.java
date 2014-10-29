@@ -490,7 +490,7 @@ public class VisionMBR {
 		return constructABObjects(findPigsMBR(), ABType.Pig);
 		}
 
-	private List<ABObject> constructABObjects(List<Rectangle> mbrs, ABType type)
+	public List<ABObject> constructABObjects(List<Rectangle> mbrs, ABType type)
 	{
 	
 		List<ABObject> objects = new LinkedList<ABObject>();
