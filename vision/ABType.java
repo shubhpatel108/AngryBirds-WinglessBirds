@@ -23,7 +23,8 @@ public enum ABType {
 	Wood(11), 
 	Stone(12), 
 	TNT(18),
-	Unknown(0);
+	Unknown(0),
+    Air(19);
 	public int id;
 	private ABType(int id)
 	{
