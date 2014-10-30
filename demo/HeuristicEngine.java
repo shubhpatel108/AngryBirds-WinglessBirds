@@ -360,5 +360,65 @@ public class HeuristicEngine {
                 obj.penetrationFactor = factor;
             }
         }
+
+    public ABObject[][] computeFinalBlocks() {
+
+        ABObject[][] final_list = new ABObject[5][2];
+
+        ArrayList<ABObject> allBlocks = new ArrayList<ABObject>(0);
+        if (_pigs != null)
+            allBlocks.addAll(pigs);
+        if (_ice != null)
+            allBlocks.addAll(ice_blocks);
+        if (_wood != null)
+            allBlocks.addAll(wood_blocks);
+        if (_stones != null)
+            allBlocks.addAll(stones_blocks);
+        if (_tnt != null)
+            allBlocks.addAll(TNT);
+
+        for (ABObject block : allBlocks)
+            block.bottomUpFactor = (0.25 * block.penetrationFactor) + (0.25 * block.displacementFactor) + (0.25 * block.supportFactor);
+        for (ABObject block : allBlocks)
+            block.topDownFactor = (0.25 * block.penetrationFactor) + (0.25 * block.displacementFactor) + (0.25 * block.downwardFactor);
+
+        //BottomUp
+        for (int i = 0; i < allBlocks.size(); i++) {
+            for (int j = 0; j < allBlocks.size() - 1; j++) {
+                if (allBlocks.get(j).bottomUpFactor < allBlocks.get(j + 1).bottomUpFactor) {
+                    ABObject temp = allBlocks.get(j + 1);
+                    allBlocks.remove(j + 1);
+                    allBlocks.add(j + 1, allBlocks.get(j));
+                    allBlocks.remove(j);
+                    allBlocks.add(j, temp);
+                }
+            }
+        }
+
+        int count = 0;
+        for (int i = 0; i < 5; i++)
+        {
+            final_list[i][0] = allBlocks.get(count++);
+        }
+
+        //TopDown
+        for (int i = 0; i < allBlocks.size(); i++) {
+            for (int j = 0; j < allBlocks.size() - 1; j++) {
+                if (allBlocks.get(j).topDownFactor < allBlocks.get(j + 1).topDownFactor) {
+                    ABObject temp = allBlocks.get(j + 1);
+                    allBlocks.remove(j + 1);
+                    allBlocks.add(j + 1, allBlocks.get(j));
+                    allBlocks.remove(j);
+                    allBlocks.add(j, temp);
+                }
+            }
+        }
+
+        count = 0;
+        for (int i = 0; i < 5; i++) {
+            final_list[i][1] = allBlocks.get(count++);
+        }
+
+        return final_list;
     }
 }
