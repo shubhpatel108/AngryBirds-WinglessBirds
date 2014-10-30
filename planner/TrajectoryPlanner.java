@@ -48,7 +48,7 @@ public class TrajectoryPlanner {
     private double _theta, _velocity, _ux, _uy, _a, _b;
     
     // the trajectory points
-    ArrayList<Point> _trajectory;
+    public ArrayList<Point> _trajectory;
     
     // reference point and current scale
     private Point _ref;
