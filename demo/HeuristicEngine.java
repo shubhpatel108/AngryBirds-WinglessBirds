@@ -24,9 +24,10 @@ public class HeuristicEngine {
     BufferedImage image;
     Vision vision;
     List<ABObject> air_blocks;
-    private ABType currentBird;
+    private ABType current_bird;
+    private Rectangle slingShot;
 
-    public HeuristicEngine(List<ABObject> all_objects, BufferedImage image, ABType currentBird) {
+    public HeuristicEngine(List<ABObject> all_objects, BufferedImage image, ABType current_bird) {
 		this.allObjects = all_objects;
 		this.image = image;
 		this.vision = new Vision(image);
@@ -38,7 +39,7 @@ public class HeuristicEngine {
 		this.hills = findAllHills(all_objects);
 		this.pigs = vision.findPigsMBR();
         this.air_blocks = new LinkedList<ABObject>();
-        this.currentBird = currentBird;
+        this.current_bird = current_bird;
     }
 
     List<ABObject> findAllHills(List<ABObject> all_objects)
@@ -181,7 +182,7 @@ public class HeuristicEngine {
             Line2D.Double line = new Line2D.Double(obj.getX(),obj.getY(),getLastX(),obj.getY());
             int weight = 0;
             int max_value = Integer.MAX_VALUE;
-            if(currentBird == ABType.RedBird)
+            if(current_bird == ABType.RedBird)
             {
                 for(ABObject block: allBlocks)
                 {
@@ -205,7 +206,7 @@ public class HeuristicEngine {
                     }
                 }
             }
-            else if (currentBird == ABType.BlueBird)
+            else if (current_bird == ABType.BlueBird)
             {
                 for(ABObject block: allBlocks)
                 {
@@ -225,7 +226,7 @@ public class HeuristicEngine {
                     }
                 }
             }
-            else if (currentBird == ABType.YellowBird)
+            else if (current_bird == ABType.YellowBird)
             {
                 for(ABObject block: allBlocks)
                 {
@@ -245,7 +246,7 @@ public class HeuristicEngine {
                     }
                 }
             }
-            else if (currentBird==ABType.WhiteBird)
+            else if (current_bird==ABType.WhiteBird)
             {
                 for(ABObject block: allBlocks)
                 {
