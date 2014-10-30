@@ -39,7 +39,12 @@ public double displacementFactor;
 //How easily a bird can penetrate through structure to hit the object
 public double penetrationFactor;
  
+//factor to determine destruction caused when block is hit in intention to displace the base
+public double bottomUpFactor;
  
+//factor to determine destruction caused when block is hit in intention to topple the structure
+public double topDownFactor;
+
 public ABObject(Rectangle mbr, ABType type) {
 	super(mbr);
 	this.type = type;
