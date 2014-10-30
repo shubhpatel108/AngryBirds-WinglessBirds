@@ -32,6 +32,9 @@ public class ABObject extends Rectangle {
 public double supportFactor;
  
 public double downwardFactor;
+
+//displacement caused to rest structure on axis when a object is hit
+public double displacementFactor;
  
  
 public ABObject(Rectangle mbr, ABType type) {
