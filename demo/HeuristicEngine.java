@@ -25,9 +25,9 @@ public class HeuristicEngine {
     Vision vision;
     List<ABObject> air_blocks;
     private ABType current_bird;
-    private Rectangle slingShot;
+    private Rectangle sling_shot;
 
-    public HeuristicEngine(List<ABObject> all_objects, BufferedImage image, ABType current_bird) {
+    public HeuristicEngine(List<ABObject> all_objects, BufferedImage image, ABType current_bird, Rectangle sling_shot) {
 		this.allObjects = all_objects;
 		this.image = image;
 		this.vision = new Vision(image);
@@ -40,6 +40,7 @@ public class HeuristicEngine {
 		this.pigs = vision.findPigsMBR();
         this.air_blocks = new LinkedList<ABObject>();
         this.current_bird = current_bird;
+        this.sling_shot = sling_shot;
     }
 
     List<ABObject> findAllHills(List<ABObject> all_objects)
@@ -287,6 +288,73 @@ public class HeuristicEngine {
                 }
             }
             obj.displacementFactor = weight;
+        }
+    }
+
+    public int assignDensity(ABObject block, int wood, int ice, int stone)
+    {
+        int weight = 0;
+        int area = Math.min(block.width,block.height);
+        if(block.type==ABType.Wood)
+            weight += 1/(20 * area);
+        else if(block.type==ABType.Ice)
+            weight += 1/(10 * area);
+        else if(block.type==ABType.Stone)
+            weight += 1/(30 * area);
+        else if(block.type==ABType.Air)
+            weight += Integer.MAX_VALUE/block.getX();
+
+        return weight;
+    }
+
+    public void calcPenetrationFactor()
+    {
+        ArrayList<ABObject> allBlocks = getAllBlocks();
+
+        for(ABObject obj: allBlocks)
+        {
+            int factor = 0;
+            TrajectoryPlanner trajectory = new TrajectoryPlanner();
+            ArrayList<Point> release_points = trajectory.estimateLaunchPoint(sling_shot,new Point((int) obj.getX(), (int) obj.getY()));
+
+            for(Point p:release_points)
+            {
+                List<ABObject> trajectoryBlocks = getAllBlocks();
+
+                trajectory.setTrajectory(sling_shot, p);
+                ArrayList<Point> trajectory_points = trajectory._trajectory;
+                for(Point t:trajectory_points)
+                {
+                    int flag=0;
+                    for(int i=0;i<_hill.size();i++)
+                    {
+                        Poly h = (Poly) _hill.get(i);
+                        if(h.polygon.contains(t) && t.getX()<=obj.getX())
+                        {
+                            flag=1;
+                            factor=Integer.MIN_VALUE;
+                            break;
+                        }
+                    }
+
+                    if(flag==1)
+                        break;
+
+                    for(ABObject block:trajectoryBlocks)
+                    {
+                        if(block != obj && block.getX() <= obj.getX() && block.contains(t))
+                        {
+                            if(currentBird == ABType.RedBird || currentBird == ABType.BlueBird)
+                                factor+=assignDensity(block, 20, 10, 30);
+                            else if (currentBird == ABType.YellowBird || currentBird==ABType.BlackBird)
+                                factor+=assignDensity(block, 10, 20, 30);
+                            else //for White Bird
+                                factor+=assignDensity(block, 30, 20, 10);
+                        }
+                    }
+                }
+                obj.penetrationFactor = factor;
+            }
         }
     }
 }
