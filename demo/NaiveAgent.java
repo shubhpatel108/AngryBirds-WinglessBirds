@@ -24,6 +24,9 @@ import ab.utils.StateUtil;
 import ab.vision.ABObject;
 import ab.vision.GameStateExtractor.GameState;
 import ab.vision.Vision;
+import ab.demo.StructureStudy;
+import ab.vision.ABType;
+
 
 public class NaiveAgent implements Runnable {
 
@@ -146,19 +149,49 @@ public class NaiveAgent implements Runnable {
 
 			if (!pigs.isEmpty()) {
 
-				Point releasePoint = null;
+				Point finalReleasePoint = null;
 				Shot shot = new Shot();
 				int dx,dy;
 				{
-					ProbeBlocks(vision);
-					// HeuristicEngine he = new HeuristicEngine();
-					// StructureStudy ss = new StructureStudy(pigs, TNT, ice, stone, wood);
-					// Rectangle outerRectangle = ss.getStructureOutline();
-					// double[][][] vectoredStructure = ss.calculate_vector(outerRectangle);
-					//he.makeAirBlocks(vectoredStructure,outerRectangle);
-					ABObject pig = GetTopPig(vision);
-					
-					Point _tpt = WeakJoint(vision, pig);
+					//ProbeBlocks(vision);
+                    List<ABObject> woods = vision.getMBRVision().constructABObjects(vision.getMBRVision().findWoodMBR(), ABType.Wood);
+                    List<ABObject> ices = vision.getMBRVision().constructABObjects(vision.getMBRVision().findIceMBR(),ABType.Ice);
+                    List<ABObject> stones = vision.getMBRVision().constructABObjects(vision.getMBRVision().findStonesMBR(),ABType.Stone);
+                    List<ABObject> TNTs = vision.getMBRVision().constructABObjects(vision.getMBRVision().findTNTsMBR(), ABType.TNT);
+                    HeuristicEngine he = new HeuristicEngine(pigs, woods, ices, stones,TNTs, screenshot, aRobot.getBirdTypeOnSling(), sling);
+					StructureStudy ss = new StructureStudy(pigs, TNTs, ices, stones, woods);
+					Rectangle outerRectangle = ss.getStructureOutline();
+					double[][][] vectoredStructure = ss.calulate_vectors(outerRectangle);
+					he.makeAirBlocks(vectoredStructure,outerRectangle);
+
+                    he.calcSupportFactor();
+                    he.calcDownwardFactor();
+                    he.calcDisplacementFactor();
+                    ABObject[][] finalCandidateBlocks = he.computeFinalBlocks();
+
+                    ABObject blockToHit = finalCandidateBlocks[0][1];
+                    Point targetPoint = blockToHit.getCenter();
+                    List<Point> releasePoints = tp.estimateLaunchPoint(sling,targetPoint);
+                    System.out.println(releasePoints);
+
+                    if(releasePoints.size()==0)
+                    {
+
+                        {
+                            System.out.println("No release point found for the target");
+                            System.out.println("Try a shot with 45 degree");
+                            finalReleasePoint = tp.findReleasePoint(sling, Math.PI/4);
+                        }
+
+                    }
+                    else
+                        finalReleasePoint = releasePoints.get(0);
+
+
+
+//					ABObject pig = GetTopPig(vision);
+//
+//					Point _tpt = WeakJoint(vision, pig);
 
 					// if the target is very close to before, randomly choose a
 					// point near it
@@ -168,50 +201,50 @@ public class NaiveAgent implements Runnable {
 					// 	_tpt.y = _tpt.y + (int) (Math.sin(_angle) * 10);
 					// 	System.out.println("Randomly changing to " + _tpt);
 					// }
-
-					prevTarget = new Point(_tpt.x, _tpt.y);
-
-					// estimate the trajectory
-					ArrayList<Point> pts = tp.estimateLaunchPoint(sling, _tpt);
-					
-					// do a high shot when entering a level to find an accurate velocity
-					if (firstShot && pts.size() > 1) 
-					{
-						releasePoint = pts.get(0);
-					}
-					// do a high shot when entering a level to find an accurate velocity
-					if (firstShot && pts.size() > 1) 
-					{
-						releasePoint = pts.get(1);
-					}
-					else if (pts.size() == 1)
-						releasePoint = pts.get(0);
-					else if (pts.size() == 2)
-					{
-						// randomly choose between the trajectories, with a 1 in
-						// 6 chance of choosing the high one
-						if (randomGenerator.nextInt(6) == 0)
-							releasePoint = pts.get(1);
-						else
-							releasePoint = pts.get(0);
-					}
-					else
-						if(pts.isEmpty())
-						{
-							System.out.println("No release point found for the target");
-							System.out.println("Try a shot with 45 degree");
-							releasePoint = tp.findReleasePoint(sling, Math.PI/4);
-						}
-					
+//
+//					prevTarget = new Point(_tpt.x, _tpt.y);
+//
+//					// estimate the trajectory
+//					ArrayList<Point> pts = tp.estimateLaunchPoint(sling, _tpt);
+//
+//					// do a high shot when entering a level to find an accurate velocity
+//					if (firstShot && pts.size() > 1)
+//					{
+//						releasePoint = pts.get(0);
+//					}
+//					// do a high shot when entering a level to find an accurate velocity
+//					if (firstShot && pts.size() > 1)
+//					{
+//						releasePoint = pts.get(1);
+//					}
+//					else if (pts.size() == 1)
+//						releasePoint = pts.get(0);
+//					else if (pts.size() == 2)
+//					{
+//						// randomly choose between the trajectories, with a 1 in
+//						// 6 chance of choosing the high one
+//						if (randomGenerator.nextInt(6) == 0)
+//							releasePoint = pts.get(1);
+//						else
+//							releasePoint = pts.get(0);
+//					}
+//					else
+//						if(pts.isEmpty())
+//						{
+//							System.out.println("No release point found for the target");
+//							System.out.println("Try a shot with 45 degree");
+//							releasePoint = tp.findReleasePoint(sling, Math.PI/4);
+//						}
+//
 					// Get the reference point
 					Point refPoint = tp.getReferencePoint(sling);
 
 
 					//Calculate the tapping time according the bird type 
-					if (releasePoint != null) {
+					if (finalReleasePoint != null) {
 						double releaseAngle = tp.getReleaseAngle(sling,
-								releasePoint);
-						System.out.println("Release Point: " + releasePoint);
+                                finalReleasePoint);
+						System.out.println("Release Point: " + finalReleasePoint);
 						System.out.println("Release Angle: "
 								+ Math.toDegrees(releaseAngle));
 						int tapInterval = 0;
@@ -232,9 +265,9 @@ public class NaiveAgent implements Runnable {
 							tapInterval =  60;
 						}
 
-						int tapTime = tp.getTapTime(sling, releasePoint, _tpt, tapInterval);
-						dx = (int)releasePoint.getX() - refPoint.x;
-						dy = (int)releasePoint.getY() - refPoint.y;
+						int tapTime = tp.getTapTime(sling, finalReleasePoint, targetPoint, tapInterval);
+						dx = (int)finalReleasePoint.getX() - refPoint.x;
+						dy = (int)finalReleasePoint.getY() - refPoint.y;
 						shot = new Shot(refPoint.x, refPoint.y, dx, dy, 0, tapTime);
 					}
 					else
@@ -264,7 +297,7 @@ public class NaiveAgent implements Runnable {
 									screenshot = ActionRobot.doScreenShot();
 									vision = new Vision(screenshot);
 									List<Point> traj = vision.findTrajPoints();
-									tp.adjustTrajectory(traj, sling, releasePoint);
+									tp.adjustTrajectory(traj, sling, finalReleasePoint);
 									firstShot = false;
 								}
 							}
