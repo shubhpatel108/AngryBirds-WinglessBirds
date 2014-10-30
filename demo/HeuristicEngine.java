@@ -502,16 +502,37 @@ public class HeuristicEngine {
         ArrayList<ABObject> left_top_blocks = new ArrayList<ABObject>();
         double max_factor = Double.MIN_VALUE;
         ABObject target_block = null;
-        for(ABObject block: left_top_blocks)
-        {
-            if(block.getCenterX()<total_com.getX() || block.getCenterY()<total_com.getY())
-            {
+        for (ABObject block : left_top_blocks) {
+            if (block.getCenterX() < total_com.getX() && block.getCenterY() < total_com.getY()) {
                 left_top_blocks.add(block);
                 System.out.println("DisplacementFactor : " + Double.toString(block.displacementFactor));
-                if(max_factor<(block.displacementFactor + companionFactor(block)))
-                {
+                if (max_factor < (block.displacementFactor + companionFactor(block))) {
                     target_block = block;
                     max_factor = block.displacementFactor + companionFactor(block);
+                }
+            }
+        }
+
+        return target_block;
+    }
+
+    public ABObject bottomSlideTarget(Point total_com)
+    {
+        ArrayList<ABObject> all_blocks = getAllBlocks();
+        ArrayList<ABObject> left_bottom_blocks = new ArrayList<ABObject>();
+        ABObject target_block = null;
+
+        double max_factor = Double.MIN_VALUE;
+
+        for(ABObject block : left_bottom_blocks)
+        {
+            if(block.getCenterX() < total_com.getX() && block.getCenterY() > total_com.getY() )
+            {
+                left_bottom_blocks.add(block);
+                if(max_factor < (block.displacementFactor + companionFactor(block)))
+                {
+                    max_factor = block.displacementFactor + companionFactor(block);
+                    target_block = block;
                 }
             }
         }
