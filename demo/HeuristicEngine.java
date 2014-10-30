@@ -1,18 +1,20 @@
+package ab.demo;
 import ab.vision.ABObject;
 import ab.vision.ABType;
+import ab.vision.real.shape.Poly;
 
 import java.awt.image.BufferedImage;
 import java.util.*;
 
 import java.awt.Rectangle;
+
 import java.awt.Point;
 import ab.vision.Vision;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import ab.planner.TrajectoryPlanner;
 
 public class HeuristicEngine {
-
-    List<ABObject> allObjects;
 
     List<ABObject> wood_blocks;
     List<ABObject> stone_blocks;
@@ -27,16 +29,15 @@ public class HeuristicEngine {
     private ABType current_bird;
     private Rectangle sling_shot;
 
-    public HeuristicEngine(List<ABObject> all_objects, BufferedImage image, ABType current_bird, Rectangle sling_shot) {
-		this.allObjects = all_objects;
-		this.image = image;
+    public HeuristicEngine(List<ABObject> pigs, List<ABObject> wood, List<ABObject> ice, List<ABObject> stones,List<ABObject> TNT, BufferedImage screenShot, ABType current_bird, Rectangle sling_shot) {
+		this.image = screenShot;
 		this.vision = new Vision(image);
 		this.birds = vision.findBirdsMBR();
-		this.wood_blocks = vision.getMBRVision().constructABObjects(vision.getMBRVision().findWoodMBR(), ABType.Wood);
-		this.stone_blocks = vision.getMBRVision().constructABObjects(vision.getMBRVision().findStonesMBR(),ABType.Stone);
-		this.ice_blocks = vision.getMBRVision().constructABObjects(vision.getMBRVision().findIceMBR(),ABType.Ice);
-		this.TNT = vision.getMBRVision().constructABObjects(vision.getMBRVision().findTNTsMBR(), ABType.TNT);
-		this.hills = findAllHills(all_objects);
+		this.wood_blocks = wood;
+		this.stone_blocks = stones;
+		this.ice_blocks = ice;
+		this.TNT = TNT;
+		this.hills = findAllHills(vision.findBlocksRealShape());
 		this.pigs = vision.findPigsMBR();
         this.air_blocks = new LinkedList<ABObject>();
         this.current_bird = current_bird;
@@ -59,7 +60,7 @@ public class HeuristicEngine {
     int getBlockDensity(ABObject block)
     {
     	//density increases in scale of 2
-        return block.type==ABType.Wood? 2:block.type==ABType.Stone?4:1;
+        return block.type==ABType.Wood? 2:block.type==ABType.Stone?40:1;
     }
 
     public void calcSupportFactor()
@@ -70,7 +71,7 @@ public class HeuristicEngine {
             for(ABObject pig:pigs)
             {
                 Line2D.Double line = new Line2D.Double(block.getCenterX(),block.getCenterY(),pig.getCenterX(),pig.getCenterY());
-                double support=0;
+                double support=0,sup;
                 int inline_block_count = 0;
                 for(ABObject obj:allBlocks)
                 {
@@ -91,13 +92,13 @@ public class HeuristicEngine {
     {
         ArrayList<ABObject> allBlocks = new ArrayList<ABObject>();
     	if(wood_blocks!=null)
-			allBlocks.addAll(wood_blocks)
-        if(stones_blocks!=null)
-			allBlocks.addAll(stones_blocks)
+			allBlocks.addAll(wood_blocks);
+        if(stone_blocks!=null)
+			allBlocks.addAll(stone_blocks);
         if(ice_blocks!=null)
-			allBlocks.addAll(ice_blocks)
+			allBlocks.addAll(ice_blocks);
         if(TNT!=null)
-			allBlocks.addAll(TNT)
+			allBlocks.addAll(TNT);
         return allBlocks;
     }
 
@@ -153,6 +154,29 @@ public class HeuristicEngine {
         }
     }
 
+    public double getLastX()
+    {
+        List<ABObject> blocks = new ArrayList<ABObject>(0);
+        if(pigs != null)
+            blocks.addAll(pigs);
+        if(wood_blocks != null)
+            blocks.addAll(wood_blocks);
+        if(ice_blocks != null)
+            blocks.addAll(ice_blocks);
+        if(stone_blocks != null)
+            blocks.addAll(stone_blocks);
+
+        double max=0.0;
+        for(ABObject r:blocks)
+        {
+            double last=r.getX()+r.getWidth();
+            if(last>max)
+                max=last;
+        }
+
+        return max;
+    }
+
     public boolean[][] isAir(double[][][] structure)
     {
         boolean[][] air = new boolean[structure.length][structure.length];
@@ -178,7 +202,7 @@ public class HeuristicEngine {
     {
         ArrayList<ABObject> allBlocks = getAllBlocks();
         if(pigs != null)
-            allRect.addAll(pigs);
+            allBlocks.addAll(pigs);
 
         for(ABObject obj: allBlocks)
         {
@@ -313,7 +337,7 @@ public class HeuristicEngine {
     {
         ArrayList<ABObject> allBlocks = getAllBlocks();
         if(pigs != null)
-            allRect.addAll(pigs);
+            allBlocks.addAll(pigs);
 
         for(ABObject obj: allBlocks)
         {
@@ -330,9 +354,9 @@ public class HeuristicEngine {
                 for(Point t:trajectory_points)
                 {
                     int flag=0;
-                    for(int i=0;i<_hill.size();i++)
+                    for(int i=0;i<hills.size();i++)
                     {
-                        Poly h = (Poly) _hill.get(i);
+                        Poly h = (Poly) hills.get(i);
                         if(h.polygon.contains(t) && t.getX()<=obj.getX())
                         {
                             flag=1;
@@ -348,9 +372,9 @@ public class HeuristicEngine {
                     {
                         if(block != obj && block.getX() <= obj.getX() && block.contains(t))
                         {
-                            if(currentBird == ABType.RedBird || currentBird == ABType.BlueBird)
+                            if(current_bird == ABType.RedBird || current_bird == ABType.BlueBird)
                                 factor+=assignDensity(block, 20, 10, 30);
-                            else if (currentBird == ABType.YellowBird || currentBird==ABType.BlackBird)
+                            else if (current_bird == ABType.YellowBird || current_bird==ABType.BlackBird)
                                 factor+=assignDensity(block, 10, 20, 30);
                             else //for White Bird
                                 factor+=assignDensity(block, 30, 20, 10);
@@ -360,19 +384,20 @@ public class HeuristicEngine {
                 obj.penetrationFactor = factor;
             }
         }
+    }
 
     public ABObject[][] computeFinalBlocks() {
 
         ABObject[][] final_list = new ABObject[5][2];
 
         ArrayList<ABObject> allBlocks = getAllBlocks();
-        if (_pigs != null)
+        if (pigs != null)
             allBlocks.addAll(pigs);
 
         for (ABObject block : allBlocks)
-            block.bottomUpFactor = (0.25 * block.penetrationFactor) + (0.25 * block.displacementFactor) + (0.25 * block.supportFactor);
+            block.bottomUpFactor = (0.33 * block.penetrationFactor) + (0.33 * block.displacementFactor) + (0.33 * block.supportFactor);
         for (ABObject block : allBlocks)
-            block.topDownFactor = (0.25 * block.penetrationFactor) + (0.25 * block.displacementFactor) + (0.25 * block.downwardFactor);
+            block.topDownFactor = (0.33 * block.penetrationFactor) + (0.33 * block.displacementFactor) + (0.33 * block.downwardFactor);
 
         //BottomUp
         for (int i = 0; i < allBlocks.size(); i++) {
