@@ -125,4 +125,9 @@ public class Vision {
 			visionMBR = new VisionMBR(image);
 		return visionMBR;
 	}
+
+    public VisionRealShape getVisionRealShape()
+    {
+        return visionRealShape;
+    }
 }
