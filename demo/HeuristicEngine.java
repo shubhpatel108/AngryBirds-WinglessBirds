@@ -177,6 +177,8 @@ public class HeuristicEngine {
     public void calcDisplacementFactor()
     {
         ArrayList<ABObject> allBlocks = getAllBlocks();
+        if(pigs != null)
+            allRect.addAll(pigs);
 
         for(ABObject obj: allBlocks)
         {
@@ -310,6 +312,8 @@ public class HeuristicEngine {
     public void calcPenetrationFactor()
     {
         ArrayList<ABObject> allBlocks = getAllBlocks();
+        if(pigs != null)
+            allRect.addAll(pigs);
 
         for(ABObject obj: allBlocks)
         {
