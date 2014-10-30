@@ -35,6 +35,9 @@ public double downwardFactor;
 
 //displacement caused to rest structure on axis when a object is hit
 public double displacementFactor;
+
+//How easily a bird can penetrate through structure to hit the object
+public double penetrationFactor;
  
  
 public ABObject(Rectangle mbr, ABType type) {
