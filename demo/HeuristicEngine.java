@@ -452,5 +452,15 @@ public class HeuristicEngine {
 
         return (new Point((mass_length_product_x/total_mass), (mass_length_product_y/total_mass)));
     }
+
+    public int getNetDistanceOfAllPointsFromObject(Point reference_point, ArrayList<ABObject> objects){
+        int total_distance = 0;
+
+        for(ABObject obj : objects){
+            total_distance += Math.sqrt((reference_point.getX() - obj.getCenterX())*(reference_point.getX() - obj.getCenterX()) + (reference_point.getY() - obj.getCenterY())*(reference_point.getY() - obj.getCenterY()) );
+        }
+
+        return total_distance;
+    }
 }
 
