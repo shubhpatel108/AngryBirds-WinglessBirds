@@ -4,6 +4,8 @@ import ab.vision.ABType;
 import ab.vision.real.shape.Poly;
 
 import java.awt.image.BufferedImage;
+import java.lang.Double;
+import java.lang.System;
 import java.util.*;
 
 import java.awt.Rectangle;
@@ -12,6 +14,8 @@ import java.awt.Point;
 import ab.vision.Vision;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+
 import ab.planner.TrajectoryPlanner;
 
 public class HeuristicEngine {
@@ -461,6 +465,76 @@ public class HeuristicEngine {
         }
 
         return total_distance;
+    }
+
+    public ABObject[][] computeFinalBlocks2() {
+        ABObject[][] final_list = new ABObject[5][2];
+        ArrayList<ABObject> allBlocks = getAllBlocks();
+        if(pigs != null)
+            allBlocks.addAll(pigs);
+        ArrayList<ABObject> piggies = new ArrayList<ABObject>();
+        if(pigs != null)
+            piggies.addAll(pigs);
+
+        Point total_com = getCenterOfMass(allBlocks);
+        Point pigs_com = getCenterOfMass(piggies);
+
+        System.out.println(distance(pigs_com, total_com));
+        if(distance(pigs_com, total_com) < 50)
+        {
+            ABObject top_target = topToppleTarget(total_com);
+//            ABObject bottom_target = bottomSlideTarget(total_com);
+        }
+
+
+        return final_list;
+    }
+
+    private double distance(Point p1, Point p2) {
+        return Math
+                .sqrt((double) ((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y)
+                        * (p1.y - p2.y)));
+    }
+
+    ABObject topToppleTarget(Point total_com)
+    {
+        ArrayList<ABObject> all_blocks = getAllBlocks();
+        ArrayList<ABObject> left_top_blocks = new ArrayList<ABObject>();
+        double max_factor = Double.MIN_VALUE;
+        ABObject target_block = null;
+        for(ABObject block: left_top_blocks)
+        {
+            if(block.getCenterX()<total_com.getX() || block.getCenterY()<total_com.getY())
+            {
+                left_top_blocks.add(block);
+                System.out.println("DisplacementFactor : " + Double.toString(block.displacementFactor));
+                if(max_factor<(block.displacementFactor + companionFactor(block)))
+                {
+                    target_block = block;
+                    max_factor = block.displacementFactor + companionFactor(block);
+                }
+            }
+        }
+
+        return target_block;
+    }
+
+    int companionFactor(ABObject block)
+    {
+        if(current_bird==ABType.RedBird)
+        {
+            return block.type==ABType.Wood? 20:block.type==ABType.Stone?10:20;
+        }
+        else if(current_bird==ABType.YellowBird)
+        {
+            return block.type==ABType.Wood? 30:block.type==ABType.Stone?10:20;
+        }
+        else if(current_bird==ABType.BlueBird)
+        {
+            return block.type==ABType.Wood? 10:block.type==ABType.Stone?5:40;
+        }
+        else
+            return 0;
     }
 }
 
