@@ -1,4 +1,4 @@
-
+package ab.demo;
 import ab.vision.ABObject;
 
 import java.awt.*;
