@@ -462,5 +462,32 @@ public class HeuristicEngine {
 
         return total_distance;
     }
+
+    public ABObject bottomSlideTarget(Point total_com)
+    {
+        ArrayList<ABObject> all_blocks = getAllBlocks();
+        ArrayList<ABObject> left_bottom_blocks = new ArrayList<ABObject>();
+        ABObject target_block = null;
+
+        double max_factor = Double.MIN_VALUE;
+
+        for(ABObject block : left_bottom_blocks)
+        {
+            if(block.getCenterX() < total_com.getX() || block.getCenterY() > total_com.getY() )
+            {
+                left_bottom_blocks.add(block);
+                if(max_factor < (block.displacementFactor + companionFactor(block)))
+                {
+                    max_factor = block.displacementFactor + companionFactor(block));
+                    target_block = block;
+                }
+            }
+        }
+
+        for(ABObject : left_bottom_blocks)
+        {
+
+        }
+    }
 }
 
