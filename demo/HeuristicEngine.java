@@ -69,7 +69,7 @@ public class HeuristicEngine {
         {
             for(ABObject pig:pigs)
             {
-                Line2D.Double line = new Line2D.Double(object.getCenterX(),object.getCenterY(),pig.getCenterX(),pig.getCenterY());
+                Line2D.Double line = new Line2D.Double(block.getCenterX(),block.getCenterY(),pig.getCenterX(),pig.getCenterY());
                 double support=0;
                 int inline_block_count = 0;
                 for(ABObject obj:allBlocks)
@@ -81,7 +81,7 @@ public class HeuristicEngine {
                         inline_block_count++;
                     }
                 }
-                object.supportFactor+=support/inline_block_count;
+                block.supportFactor+=support/inline_block_count;
             }
         }
         return;
