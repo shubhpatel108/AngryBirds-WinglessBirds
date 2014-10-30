@@ -365,17 +365,9 @@ public class HeuristicEngine {
 
         ABObject[][] final_list = new ABObject[5][2];
 
-        ArrayList<ABObject> allBlocks = new ArrayList<ABObject>(0);
+        ArrayList<ABObject> allBlocks = getAllBlocks();
         if (_pigs != null)
             allBlocks.addAll(pigs);
-        if (_ice != null)
-            allBlocks.addAll(ice_blocks);
-        if (_wood != null)
-            allBlocks.addAll(wood_blocks);
-        if (_stones != null)
-            allBlocks.addAll(stones_blocks);
-        if (_tnt != null)
-            allBlocks.addAll(TNT);
 
         for (ABObject block : allBlocks)
             block.bottomUpFactor = (0.25 * block.penetrationFactor) + (0.25 * block.displacementFactor) + (0.25 * block.supportFactor);
