@@ -438,4 +438,19 @@ public class HeuristicEngine {
 
         return final_list;
     }
+
+    public Point getCenterOfMass(ArrayList<ABObject> objects){
+        int mass_length_product_x = 0;
+        int mass_length_product_y = 0;
+        int total_mass = 0;
+
+        for(ABObject obj : objects){
+            mass_length_product_x += (obj.width*obj.height*getBlockDensity(obj))*obj.getCenterX();
+            mass_length_product_y += (obj.width*obj.height*getBlockDensity(obj))*obj.getCenterY();
+            total_mass += obj.width*obj.height*getBlockDensity(obj);
+        }
+
+        return (new Point((mass_length_product_x/total_mass), (mass_length_product_y/total_mass)));
+    }
 }
+
