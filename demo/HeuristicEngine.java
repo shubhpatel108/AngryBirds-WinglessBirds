@@ -325,7 +325,7 @@ public class HeuristicEngine {
         }
     }
 
-    public int assignDensity(ABObject block)
+    public double assignDensity(ABObject block)
     {
         double weight = 0;
         double area = Math.min(block.width,block.height);
