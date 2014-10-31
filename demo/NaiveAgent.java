@@ -167,25 +167,33 @@ public class NaiveAgent implements Runnable {
                     he.calcSupportFactor();
                     he.calcDownwardFactor();
                     he.calcDisplacementFactor();
+                    he.calcPenetrationFactor();
                     ABObject[][] finalCandidateBlocks = he.computeFinalBlocks();
 
-                    ABObject blockToHit = finalCandidateBlocks[0][1];
+//                    ABObject blockToHit = finalCandidateBlocks[0][1];
+                    ABObject blockToHit = he.computeFinalBlocks2();
+                    System.out.println("BLOCK: " + blockToHit);
+                    if(blockToHit==null)
+                        blockToHit = GetTopPig(vision);
+
                     Point targetPoint = blockToHit.getCenter();
+                    System.out.println("target : " + targetPoint);
+                    System.out.println("sling : " + sling);
                     List<Point> releasePoints = tp.estimateLaunchPoint(sling,targetPoint);
-                    System.out.println(releasePoints);
 
                     if(releasePoints.size()==0)
                     {
 
                         {
                             System.out.println("No release point found for the target");
-                            System.out.println("Try a shot with 45 degree");
-                            finalReleasePoint = tp.findReleasePoint(sling, Math.PI/4);
+                            System.out.println("Try hitting Top pig");
+                            blockToHit = GetTopPig(vision);
+                            targetPoint = blockToHit.getCenter();
+                            releasePoints = tp.estimateLaunchPoint(sling,targetPoint);
                         }
 
                     }
-                    else
-                        finalReleasePoint = releasePoints.get(0);
+                    finalReleasePoint = releasePoints.get(0);
 
 
 

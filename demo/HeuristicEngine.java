@@ -76,14 +76,18 @@ public class HeuristicEngine {
             {
                 Line2D.Double line = new Line2D.Double(block.getCenterX(),block.getCenterY(),pig.getCenterX(),pig.getCenterY());
                 double support=0,sup;
-                int inline_block_count = 0;
+                double inline_block_count = 1;
                 for(ABObject obj:allBlocks)
                 {
                     if(line.intersects(obj))
                     {
                         sup = obj.getHeight()/obj.getWidth();
-                        support+= sup/(obj.area*getBlockDensity(obj));
-                        inline_block_count++;
+                        support+= sup/(Math.min(obj.getHeight(), obj.getWidth())*(double)getBlockDensity(obj));
+                        System.out.println("+++++++++++++++++");
+                        System.out.println("Sup : " + sup);
+                        System.out.println("Support : " + support);
+                        System.out.println("+++++++++++++++++");
+                        inline_block_count+=1;
                     }
                 }
                 block.supportFactor+=support/inline_block_count;
@@ -116,7 +120,7 @@ public class HeuristicEngine {
         {
             int lateral_dist_sum = 0;
             int density_sum = 0;
-            Line2D verticalLine = new Line2D.Double(obj.getCenter(), new Point2D.Double(obj.getCenterX(),ground_level));
+            Line2D verticalLine = new Line2D.Double(obj.getCenter(), new Point2D.Double (obj.getCenterX(),ground_level));
 
             for(ABObject block: allBlocks)
             {
@@ -138,7 +142,7 @@ public class HeuristicEngine {
 
                 }
             }
-            obj.downwardFactor = lateral_dist_sum;
+            obj.downwardFactor = lateral_dist_sum*density_sum;
         }
     }
 
@@ -211,13 +215,13 @@ public class HeuristicEngine {
         for(ABObject obj: allBlocks)
         {
             Line2D.Double line = new Line2D.Double(obj.getX(),obj.getY(),getLastX(),obj.getY());
-            int weight = 0;
+            double weight = 0;
             int max_value = Integer.MAX_VALUE;
             if(current_bird == ABType.RedBird)
             {
                 for(ABObject block: allBlocks)
                 {
-                    int area = Math.min(block.width,block.height);
+                    double area = Math.min(block.width,block.height);
                     if(line.intersects(block))
                     {
                         if(block.type==ABType.Wood)
@@ -321,10 +325,10 @@ public class HeuristicEngine {
         }
     }
 
-    public int assignDensity(ABObject block, int wood, int ice, int stone)
+    public double assignDensity(ABObject block, int wood, int ice, int stone)
     {
-        int weight = 0;
-        int area = Math.min(block.width,block.height);
+        double weight = 0;
+        double area = Math.min(block.width,block.height);
         if(block.type==ABType.Wood)
             weight += 1/(20 * area);
         else if(block.type==ABType.Ice)
@@ -345,7 +349,7 @@ public class HeuristicEngine {
 
         for(ABObject obj: allBlocks)
         {
-            int factor = 0;
+            double factor = 0;
             TrajectoryPlanner trajectory = new TrajectoryPlanner();
             ArrayList<Point> release_points = trajectory.estimateLaunchPoint(sling_shot,new Point((int) obj.getX(), (int) obj.getY()));
 
@@ -364,7 +368,7 @@ public class HeuristicEngine {
                         if(h.polygon.contains(t) && t.getX()<=obj.getX())
                         {
                             flag=1;
-                            factor=Integer.MIN_VALUE;
+                            factor=Double.MIN_VALUE;
                             break;
                         }
                     }
@@ -399,9 +403,19 @@ public class HeuristicEngine {
             allBlocks.addAll(pigs);
 
         for (ABObject block : allBlocks)
+        {
             block.bottomUpFactor = (0.33 * block.penetrationFactor) + (0.33 * block.displacementFactor) + (0.33 * block.supportFactor);
+            System.out.println("Penetratoin : " + block.penetrationFactor);
+            System.out.println("Displacement: "+block.displacementFactor);
+            System.out.println("Suport : "+block.supportFactor);
+            System.out.println("Bottom Up: " + block.bottomUpFactor);
+        }
         for (ABObject block : allBlocks)
+        {
             block.topDownFactor = (0.33 * block.penetrationFactor) + (0.33 * block.displacementFactor) + (0.33 * block.downwardFactor);
+            System.out.println("DownwardFactor : " + block.downwardFactor);
+            System.out.println("Top Down: " + block.topDownFactor);
+        }
 
         //BottomUp
         for (int i = 0; i < allBlocks.size(); i++) {
@@ -439,7 +453,6 @@ public class HeuristicEngine {
         for (int i = 0; i < 5; i++) {
             final_list[i][1] = allBlocks.get(count++);
         }
-
         return final_list;
     }
 
@@ -467,8 +480,8 @@ public class HeuristicEngine {
         return total_distance;
     }
 
-    public ABObject[][] computeFinalBlocks2() {
-        ABObject[][] final_list = new ABObject[5][2];
+    public ABObject computeFinalBlocks2() {
+//        ABObject[][] final_list = new ABObject[5][2];
         ArrayList<ABObject> allBlocks = getAllBlocks();
         if(pigs != null)
             allBlocks.addAll(pigs);
@@ -478,16 +491,23 @@ public class HeuristicEngine {
 
         Point total_com = getCenterOfMass(allBlocks);
         Point pigs_com = getCenterOfMass(piggies);
+        System.out.println("Totol COM " + total_com);
+        System.out.println("Pig COM " + pigs_com);
 
-        System.out.println(distance(pigs_com, total_com));
-        if(distance(pigs_com, total_com) < 50)
+        System.out.println("Distance Pig COM and Total Com " + (distance(pigs_com, total_com)));
+        if(distance(pigs_com, total_com) < 70 || true)
         {
             ABObject top_target = topToppleTarget(total_com);
-//            ABObject bottom_target = bottomSlideTarget(total_com);
+            ABObject bottom_target = bottomSlideTarget(total_com);
+            System.out.println("top_tagert X: " + ((top_target)));
+            System.out.println("bootom_tagert X: " + ((bottom_target)));
+
+            if(top_target!=null)
+                return top_target;
+            else if(bottom_target!=null)
+                return bottom_target;
         }
-
-
-        return final_list;
+        return null;
     }
 
     private double distance(Point p1, Point p2) {
@@ -502,10 +522,10 @@ public class HeuristicEngine {
         ArrayList<ABObject> left_top_blocks = new ArrayList<ABObject>();
         double max_factor = Double.MIN_VALUE;
         ABObject target_block = null;
-        for (ABObject block : left_top_blocks) {
-            if (block.getCenterX() < total_com.getX() && block.getCenterY() < total_com.getY()) {
+        for (ABObject block : all_blocks) {
+            System.out.println("DisplacementFactor : " + Double.toString(block.displacementFactor));
+            if (block.getX() < total_com.getX() && block.getY() < total_com.getY()) {
                 left_top_blocks.add(block);
-                System.out.println("DisplacementFactor : " + Double.toString(block.displacementFactor));
                 if (max_factor < (block.displacementFactor + companionFactor(block))) {
                     target_block = block;
                     max_factor = block.displacementFactor + companionFactor(block);
@@ -524,9 +544,9 @@ public class HeuristicEngine {
 
         double max_factor = Double.MIN_VALUE;
 
-        for(ABObject block : left_bottom_blocks)
+        for(ABObject block : all_blocks)
         {
-            if(block.getCenterX() < total_com.getX() && block.getCenterY() > total_com.getY() )
+            if(block.getX() < total_com.getX() && block.getY() > total_com.getY() )
             {
                 left_bottom_blocks.add(block);
                 if(max_factor < (block.displacementFactor + companionFactor(block)))
