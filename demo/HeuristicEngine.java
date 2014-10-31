@@ -325,7 +325,7 @@ public class HeuristicEngine {
         }
     }
 
-    public double assignDensity(ABObject block, int wood, int ice, int stone)
+    public int assignDensity(ABObject block)
     {
         double weight = 0;
         double area = Math.min(block.width,block.height);
@@ -381,11 +381,11 @@ public class HeuristicEngine {
                         if(block != obj && block.getX() <= obj.getX() && block.contains(t))
                         {
                             if(current_bird == ABType.RedBird || current_bird == ABType.BlueBird)
-                                factor+=assignDensity(block, 20, 10, 30);
+                                factor+=assignDensity(block);
                             else if (current_bird == ABType.YellowBird || current_bird==ABType.BlackBird)
-                                factor+=assignDensity(block, 10, 20, 30);
+                                factor+=assignDensity(block);
                             else //for White Bird
-                                factor+=assignDensity(block, 30, 20, 10);
+                                factor+=assignDensity(block);
                         }
                     }
                 }
