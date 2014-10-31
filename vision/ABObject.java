@@ -45,6 +45,9 @@ public double bottomUpFactor;
 //factor to determine destruction caused when block is hit in intention to topple the structure
 public double topDownFactor;
 
+//factor which tells the distant of the block from the Weak Point
+public double weakVicinityFactor;
+
 public ABObject(Rectangle mbr, ABType type) {
 	super(mbr);
 	this.type = type;
