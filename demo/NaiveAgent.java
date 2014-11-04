@@ -177,7 +177,7 @@ public class NaiveAgent implements Runnable {
                     if(blockToHit==null)
                         blockToHit = GetTopPig(vision);
 
-                    Point targetPoint = blockToHit.getCenter();
+                    Point targetPoint = new Point((int)blockToHit.getCenterX(),(int)(blockToHit.getCenterY()-(blockToHit.height/4)));
                     System.out.println("target : " + targetPoint);
                     System.out.println("sling : " + sling);
                     List<Point> releasePoints = tp.estimateLaunchPoint(sling,targetPoint);

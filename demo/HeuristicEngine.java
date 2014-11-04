@@ -325,7 +325,7 @@ public class HeuristicEngine {
         }
     }
 
-    public int assignDensity(ABObject block)
+    public double assignDensity(ABObject block)
     {
         double weight = 0;
         double area = Math.min(block.width,block.height);
@@ -404,7 +404,7 @@ public class HeuristicEngine {
 
         for (ABObject block : allBlocks)
         {
-            block.bottomUpFactor = (0.2 * block.penetrationFactor) + (0.2 * block.displacementFactor) + (0.0.5 * block.supportFactor) + (0.4 * block.weakVicinityFactor);
+            block.bottomUpFactor = (0.25 * block.penetrationFactor) + (0.25 * block.displacementFactor) + (0.1 * block.supportFactor) + (0.4 * block.weakVicinityFactor);
             System.out.println("Penetratoin : " + block.penetrationFactor);
             System.out.println("Displacement: "+block.displacementFactor);
             System.out.println("Suport : "+block.supportFactor);
