@@ -168,15 +168,16 @@ public class NaiveAgent implements Runnable {
                     he.calcDownwardFactor();
                     he.calcDisplacementFactor();
                     he.calcPenetrationFactor();
+                    he.calcWeakVicinity();
                     ABObject[][] finalCandidateBlocks = he.computeFinalBlocks();
 
-//                    ABObject blockToHit = finalCandidateBlocks[0][1];
-                    ABObject blockToHit = he.computeFinalBlocks2();
+                    ABObject blockToHit = finalCandidateBlocks[0][1];
+//                    ABObject blockToHit = he.computeFinalBlocks2();
                     System.out.println("BLOCK: " + blockToHit);
                     if(blockToHit==null)
                         blockToHit = GetTopPig(vision);
 
-                    Point targetPoint = blockToHit.getCenter();
+                    Point targetPoint = new Point((int)blockToHit.getCenterX(),(int)(blockToHit.getCenterY()-(blockToHit.height/4)));
                     System.out.println("target : " + targetPoint);
                     System.out.println("sling : " + sling);
                     List<Point> releasePoints = tp.estimateLaunchPoint(sling,targetPoint);

@@ -142,7 +142,7 @@ public class HeuristicEngine {
 
                 }
             }
-            obj.downwardFactor = lateral_dist_sum*density_sum;
+            obj.downwardFactor = lateral_dist_sum/density_sum;
         }
     }
 
@@ -404,7 +404,7 @@ public class HeuristicEngine {
 
         for (ABObject block : allBlocks)
         {
-            block.bottomUpFactor = (0.33 * block.penetrationFactor) + (0.33 * block.displacementFactor) + (0.33 * block.supportFactor);
+            block.bottomUpFactor = (0.25 * block.penetrationFactor) + (0.25 * block.displacementFactor) + (0.1 * block.supportFactor) + (0.4 * block.weakVicinityFactor);
             System.out.println("Penetratoin : " + block.penetrationFactor);
             System.out.println("Displacement: "+block.displacementFactor);
             System.out.println("Suport : "+block.supportFactor);
@@ -412,7 +412,7 @@ public class HeuristicEngine {
         }
         for (ABObject block : allBlocks)
         {
-            block.topDownFactor = (0.33 * block.penetrationFactor) + (0.33 * block.displacementFactor) + (0.33 * block.downwardFactor);
+            block.topDownFactor = (0.2 * block.penetrationFactor) + (0.2 * block.displacementFactor) + (0.05 * block.downwardFactor) + (0.4 * block.weakVicinityFactor);
             System.out.println("DownwardFactor : " + block.downwardFactor);
             System.out.println("Top Down: " + block.topDownFactor);
         }
@@ -454,6 +454,25 @@ public class HeuristicEngine {
             final_list[i][1] = allBlocks.get(count++);
         }
         return final_list;
+    }
+
+    public void calcWeakVicinity()
+    {
+        ArrayList<ABObject> allBlocks = getAllBlocks();
+        ArrayList<ABObject> piggies = new ArrayList<ABObject>();
+        if(pigs != null)
+            piggies.addAll(pigs);
+        Point pigs_com = getCenterOfMass(piggies);
+        Point weak_point = WeakJoint(vision, pigs_com);
+        double factor = 0;
+        System.out.println("++===WVF=+++===");
+        for(ABObject block: allBlocks)
+        {
+            factor = 1/(distance(block.getCenter(), weak_point));
+            System.out.println("FACTOR: " + factor);
+            block.weakVicinityFactor = factor;
+        }
+        System.out.println("++====+++===");
     }
 
     public Point getCenterOfMass(ArrayList<ABObject> objects){
@@ -576,6 +595,50 @@ public class HeuristicEngine {
         }
         else
             return 0;
+    }
+
+    public Point WeakJoint(Vision vision, Point pig)
+    {
+        List<ABObject> blocks = vision.findBlocksMBR();
+        ABObject u_target_block=null;
+        ABObject l_target_block=null;
+        Double u_min_dist = Double.MAX_VALUE;
+        Double l_min_dist = Double.MAX_VALUE;
+        for(int i=0; i<blocks.size();i++)
+        {
+            ABObject b = blocks.get(i);
+            if(pig.y-b.y>0 && pig.x>(b.x) && pig.x<(b.x+b.width) && u_min_dist>pig.y-b.y)
+            {
+                u_min_dist = ((double)pig.y-(double)b.y);
+                u_target_block = b;
+            }
+            else if(b.y-pig.y>0 && pig.x>(b.x-b.width/2) && pig.x<(b.x+b.width/2) && l_min_dist>b.y-pig.y)
+            {
+                l_min_dist = ((double)b.y-(double)pig.y);
+                l_target_block = b;
+            }
+        }
+        if(u_target_block==null && l_target_block!=null)
+        {
+            int ximpactAt=0,yimpactAt=0;
+            if(pig.x-l_target_block.x>15)
+            {
+                ximpactAt = l_target_block.x;
+                yimpactAt = l_target_block.y;
+            }
+            else
+            {
+                ximpactAt = pig.x;
+                yimpactAt = pig.y;
+            }
+            return  new Point(ximpactAt, yimpactAt);
+        }
+        else if(u_target_block!=null)
+        {
+            return  new Point(u_target_block.x, u_target_block.y+u_target_block.height/2);
+        }
+        else
+            return pig;
     }
 }
 
