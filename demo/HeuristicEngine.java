@@ -211,118 +211,142 @@ public class HeuristicEngine {
         ArrayList<ABObject> allBlocks = getAllBlocks();
         if(pigs != null)
             allBlocks.addAll(pigs);
+        if(air_blocks != null)
+            allBlocks.addAll(air_blocks);
 
         for(ABObject obj: allBlocks)
         {
-            Line2D.Double line = new Line2D.Double(obj.getX(),obj.getY(),getLastX(),obj.getY());
-            double weight = 0;
-            int max_value = Integer.MAX_VALUE;
-            if(current_bird == ABType.RedBird)
-            {
-                for(ABObject block: allBlocks)
+            if(obj.type!=ABType.Air) {
+                Line2D.Double line = new Line2D.Double(obj.getX(),obj.getY(),getLastX(),obj.getY());
+                double weight = 0;
+                int max_value = Integer.MAX_VALUE;
+                if(current_bird == ABType.RedBird)
                 {
-                    double area = Math.min(block.width,block.height);
-                    if(line.intersects(block))
+                    for(ABObject block: allBlocks)
                     {
-                        if(block.type==ABType.Wood)
+                        double area = Math.min(block.width,block.height);
+                        if(line.intersects(block))
                         {
-                            weight += 1/(10 * area);
+                            if(block.type==ABType.Wood)
+                            {
+                                weight += 1/(10 * area);
+                            }
+                            else if(block.type==ABType.Ice)
+                                weight += 1/(20 * area);
+                            else if(block.type==ABType.Stone)
+                                weight += 1/(30 * area);
+                            else if(block.type==ABType.Air)
+                                weight += max_value/block.getX();
+                            else
+                            {
+                                continue;
+                            }
                         }
-                        else if(block.type==ABType.Ice)
-                            weight += 1/(20 * area);
-                        else if(block.type==ABType.Stone)
-                            weight += 1/(30 * area);
-                        else if(block.type==ABType.Air)
-                            weight += max_value/block.getX();
-                        else
+                    }
+                }
+                else if (current_bird == ABType.BlueBird)
+                {
+                    for(ABObject block: allBlocks)
+                    {
+                        int area = Math.min(block.width,block.height);
+                        if(line.intersects(block))
                         {
-                            continue;
+                            if(block.type==ABType.Wood)
+                                weight += 1/(20 * area);
+                            else if(block.type==ABType.Ice)
+                                weight += 1/(10 * area);
+                            else if(block.type==ABType.Stone)
+                                weight += 1/(30 * area);
+                            else if(block.type==ABType.Air)
+                                weight += max_value/block.getX();
+                            else
+                                continue;
                         }
                     }
                 }
-            }
-            else if (current_bird == ABType.BlueBird)
-            {
-                for(ABObject block: allBlocks)
+                else if (current_bird == ABType.YellowBird)
                 {
-                    int area = Math.min(block.width,block.height);
-                    if(line.intersects(block))
+                    for(ABObject block: allBlocks)
                     {
-                        if(block.type==ABType.Wood)
-                            weight += 1/(20 * area);
-                        else if(block.type==ABType.Ice)
-                            weight += 1/(10 * area);
-                        else if(block.type==ABType.Stone)
-                            weight += 1/(30 * area);
-                        else if(block.type==ABType.Air)
-                            weight += max_value/block.getX();
-                        else
-                            continue;
+                        int area = Math.min(block.width,block.height);
+                        if(line.intersects(block))
+                        {
+                            if(block.type==ABType.Wood)
+                                weight += 1/(10 * area);
+                            else if(block.type==ABType.Ice)
+                                weight += 1/(20 * area);
+                            else if(block.type==ABType.Stone)
+                                weight += 1/(30 * area);
+                            else if(block.type==ABType.Air)
+                                weight += max_value/block.getX();
+                            else
+                                continue;
+                        }
                     }
                 }
-            }
-            else if (current_bird == ABType.YellowBird)
-            {
-                for(ABObject block: allBlocks)
+                else if (current_bird==ABType.WhiteBird)
                 {
-                    int area = Math.min(block.width,block.height);
-                    if(line.intersects(block))
+                    for(ABObject block: allBlocks)
                     {
-                        if(block.type==ABType.Wood)
-                            weight += 1/(10 * area);
-                        else if(block.type==ABType.Ice)
-                            weight += 1/(20 * area);
-                        else if(block.type==ABType.Stone)
-                            weight += 1/(30 * area);
-                        else if(block.type==ABType.Air)
-                            weight += max_value/block.getX();
-                        else
-                            continue;
+                        int area = Math.min(block.width,block.height);
+                        if(line.intersects(block))
+                        {
+                            if(block.type==ABType.Wood)
+                                weight += 1/(30 * area);
+                            else if(block.type==ABType.Ice)
+                                weight += 1/(20 * area);
+                            else if(block.type==ABType.Stone)
+                                weight += 1/(10 * area);
+                            else if(block.type==ABType.Air)
+                                weight += max_value/block.getX();
+                            else
+                                continue;
+                        }
                     }
                 }
-            }
-            else if (current_bird==ABType.WhiteBird)
-            {
-                for(ABObject block: allBlocks)
+                else //for black birds
                 {
-                    int area = Math.min(block.width,block.height);
-                    if(line.intersects(block))
+                    for(ABObject block: allBlocks)
                     {
-                        if(block.type==ABType.Wood)
-                            weight += 1/(30 * area);
-                        else if(block.type==ABType.Ice)
-                            weight += 1/(20 * area);
-                        else if(block.type==ABType.Stone)
-                            weight += 1/(10 * area);
-                        else if(block.type==ABType.Air)
-                            weight += max_value/block.getX();
-                        else
-                            continue;
+                        int area = Math.min(block.width,block.height);
+                        if(line.intersects(block))
+                        {
+                            if(block.type==ABType.Wood)
+                                weight += 1/(10 * area);
+                            else if(block.type==ABType.Ice)
+                                weight += 1/(20 * area);
+                            else if(block.type==ABType.Stone)
+                                weight += 1/(30 * area);
+                            else if(block.type==ABType.Air)
+                                weight += max_value/block.getX();
+                            else
+                                continue;
+                        }
                     }
                 }
+                obj.displacementFactor = weight;
             }
-            else //for black birds
-            {
-                for(ABObject block: allBlocks)
-                {
-                    int area = Math.min(block.width,block.height);
-                    if(line.intersects(block))
-                    {
-                        if(block.type==ABType.Wood)
-                            weight += 1/(10 * area);
-                        else if(block.type==ABType.Ice)
-                            weight += 1/(20 * area);
-                        else if(block.type==ABType.Stone)
-                            weight += 1/(30 * area);
-                        else if(block.type==ABType.Air)
-                            weight += max_value/block.getX();
-                        else
-                            continue;
-                    }
-                }
-            }
-            obj.displacementFactor = weight;
         }
+
+        double max = 0;
+        for(ABObject obj:allBlocks)
+        {
+            if(notAirBlock(obj) && obj.displacementFactor>max)
+                max = obj.displacementFactor;
+
+        }
+
+        for(ABObject object:allBlocks)
+        {
+            if(notAirBlock(object))
+                object.displacementFactor = 100*object.displacementFactor/max;
+        }
+
+    }
+
+    public boolean notAirBlock(ABObject object)
+    {
+        return object.type!=ABType.Air;
     }
 
     public double assignDensity(ABObject block)
