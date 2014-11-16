@@ -674,5 +674,40 @@ public class HeuristicEngine {
         else
             return pig;
     }
-}
 
+    public int getMaximumScore()
+    {
+        int max_score = 0;
+        int pig_score = 5000;
+        int tnt_score = 500;
+        int wood_score = 500;
+        int ice_score = 500;
+        int stone_score = 1500;
+
+        ArrayList<ABObject> allBlocks = getAllBlocks();
+        if (pigs != null) {
+            allBlocks.addAll(pigs);
+        }
+
+        for (ABObject block: allBlocks) {
+            if (block.type == ABType.Pig) {
+                max_score += pig_score;
+            }
+            else if (block.type == ABType.TNT) {
+                max_score += tnt_score;
+            }
+            else
+            {
+                if (block.type == ABType.TNT)
+                    max_score += tnt_score;
+                else if (block.type == ABType.Wood)
+                    max_score += wood_score;
+                else if (block.type == ABType.Ice)
+                    max_score += ice_score;
+                else if (block.type == ABType.Stone)
+                    max_score += stone_score;
+            }
+        }
+        return max_score;
+    }
+}
