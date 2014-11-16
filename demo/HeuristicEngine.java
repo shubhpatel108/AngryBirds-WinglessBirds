@@ -146,29 +146,39 @@ public class HeuristicEngine {
         {
             int lateral_dist_sum = 0;
             int density_sum = 0;
+            int count = 0;
             Line2D verticalLine = new Line2D.Double(obj.getCenter(), new Point2D.Double (obj.getCenterX(),ground_level));
 
             for(ABObject block: allBlocks)
-            {
-                if(verticalLine.intersects(block))
+            {   
+                count = 0;
+                if(verticalLine.intersects(block) || verticalLine.contains(block))
+                {
                     density_sum+=getBlockDensity(block);
+                    count++;
+                }
             }
 
             for(ABObject pig: pigs)
             {
                 if(pig.getMinY()>obj.getMaxY())
                 {
-                    lateral_dist_sum += Math.abs(verticalLine.getX1() - pig.getCenterX());
+                    // lateral_dist_sum += Math.abs(verticalLine.getX1() - pig.getCenterX());
                     Line2D lineToPig = new Line2D.Double(pig.getCenter(),new Point2D.Double(verticalLine.getX1(),pig.getCenterY()));
                     for(ABObject intermediate_block: allBlocks)
                     {
-                        if(lineToPig.intersects(intermediate_block))
+                        if(lineToPig.intersects(intermediate_block) || lineToPig.contains(intermediate_block))
                           density_sum+=getBlockDensity(intermediate_block);
+                          count++;
                     }
 
                 }
             }
-            obj.downwardFactor = lateral_dist_sum/density_sum;
+
+            if (density_sum!=0 && count!= 0) {
+                density_sum /= count;
+            }
+            obj.downwardFactor = density_sum;
         }
     }
 

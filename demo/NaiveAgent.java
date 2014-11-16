@@ -263,13 +263,13 @@ public class NaiveAgent implements Runnable {
 						case RedBird:
 							tapInterval = 0; break;               // start of trajectory
 						case YellowBird:
-							tapInterval = 65 + randomGenerator.nextInt(25);break; // 65-90% of the way
+							tapInterval = 65 + 20/*randomGenerator.nextInt(25)*/;break; // 65-90% of the way
 						case WhiteBird:
 							tapInterval =  70 + randomGenerator.nextInt(20);break; // 70-90% of the way
 						case BlackBird:
 							tapInterval =  70 + randomGenerator.nextInt(20);break; // 70-90% of the way
 						case BlueBird:
-							tapInterval =  65 + randomGenerator.nextInt(20);break; // 65-85% of the way
+							tapInterval =  65 + 20/*randomGenerator.nextInt(20)*/;break; // 65-85% of the way
 						default:
 							tapInterval =  60;
 						}
