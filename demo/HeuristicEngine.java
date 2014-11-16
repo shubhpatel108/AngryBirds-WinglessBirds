@@ -32,6 +32,7 @@ public class HeuristicEngine {
     List<ABObject> air_blocks;
     private ABType current_bird;
     private Rectangle sling_shot;
+    private List<SubStructure> sub_structures;
 
     public HeuristicEngine(List<ABObject> pigs, List<ABObject> wood, List<ABObject> ice, List<ABObject> stones,List<ABObject> TNT, BufferedImage screenShot, ABType current_bird, Rectangle sling_shot) {
 		this.image = screenShot;
@@ -46,6 +47,7 @@ public class HeuristicEngine {
         this.air_blocks = new LinkedList<ABObject>();
         this.current_bird = current_bird;
         this.sling_shot = sling_shot;
+        sub_structures = new LinkedList<SubStructure>();
     }
 
     List<ABObject> findAllHills(List<ABObject> all_objects)
@@ -72,26 +74,50 @@ public class HeuristicEngine {
         ArrayList<ABObject> allBlocks = getAllBlocks();
         for(ABObject block: allBlocks)
         {
-            for(ABObject pig:pigs)
+            SubStructure current = null;
+            for(int i=0; i<sub_structures.size();i++)
             {
-                Line2D.Double line = new Line2D.Double(block.getCenterX(),block.getCenterY(),pig.getCenterX(),pig.getCenterY());
-                double support=0,sup;
-                double inline_block_count = 1;
-                for(ABObject obj:allBlocks)
-                {
-                    if(line.intersects(obj))
-                    {
-                        sup = obj.getHeight()/obj.getWidth();
-                        support+= sup/(Math.min(obj.getHeight(), obj.getWidth())*(double)getBlockDensity(obj));
-                        System.out.println("+++++++++++++++++");
-                        System.out.println("Sup : " + sup);
-                        System.out.println("Support : " + support);
-                        System.out.println("+++++++++++++++++");
-                        inline_block_count+=1;
-                    }
-                }
-                block.supportFactor+=support/inline_block_count;
+                if(sub_structures.get(i).contains(block))
+                    current = sub_structures.get(i);
             }
+            if(current!=null)
+            {
+                for(ABObject pig:pigs)
+                {
+                    Line2D.Double line = new Line2D.Double(block.getCenterX(),block.getCenterY(),pig.getCenterX(),pig.getCenterY());
+                    double support=0,sup;
+                    double inline_block_count = 1;
+                    for(ABObject obj:allBlocks)
+                    {
+                        if(line.intersects(obj) || current.contains(obj) && obj.id!=block.id)
+                        {
+                            sup = obj.getHeight()/obj.getWidth();
+                            support+= sup/(Math.min(obj.getHeight(), obj.getWidth())*(double)getBlockDensity(obj));
+                            inline_block_count+=1;
+                        }
+                    }
+                    block.supportFactor+=support/inline_block_count;
+                }
+                block.supportFactor*=100000;
+                if(block.type==ABType.Wood)
+                    block.supportFactor /= 15;
+                else if(block.type==ABType.Ice)
+                    block.supportFactor /= 10;
+                else if(block.type==ABType.Stone)
+                    block.supportFactor /= 20;
+            }
+        }
+        double max = 0;
+        for(ABObject obj:allBlocks)
+        {
+            if(obj.supportFactor>max)
+            {
+                max = obj.supportFactor;
+            }
+        }
+        for(ABObject obj:allBlocks)
+        {
+            obj.supportFactor = 100*obj.supportFactor/max;
         }
         return;
     }
