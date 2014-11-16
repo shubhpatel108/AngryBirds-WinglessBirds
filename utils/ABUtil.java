@@ -33,6 +33,19 @@ public class ABUtil {
 		
 		return false;
 	}
+
+	public static List<ABObject> getSupportees(ABObject o2,List<ABObject> objs)
+    {
+        List<ABObject> result = new LinkedList<ABObject>();
+        //Loop through the potential supporters
+        for(ABObject o1: objs)
+        {
+            if(isSupport(o1,o2))
+                result.add(o1);
+        }
+        return result;
+    }
+
 	//Return a link list of ABObjects that support o1 (test by isSupport function ). 
 	//objs refers to a list of potential supporters.
 	//Empty list will be returned if no such supporters. 
