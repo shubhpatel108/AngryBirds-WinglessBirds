@@ -32,6 +32,8 @@ public class HeuristicEngine {
     List<ABObject> air_blocks;
     private ABType current_bird;
     private Rectangle sling_shot;
+    boolean has_any_block_come = false;
+
 
     public HeuristicEngine(List<ABObject> pigs, List<ABObject> wood, List<ABObject> ice, List<ABObject> stones,List<ABObject> TNT, BufferedImage screenShot, ABType current_bird, Rectangle sling_shot) {
 		this.image = screenShot;
@@ -359,18 +361,33 @@ public class HeuristicEngine {
         return object.type!=ABType.Air;
     }
 
-    public double assignDensity(ABObject block)
+    public double assignDensity(ABObject block, int wood, int ice, int stone, int air, int tnt, int pig)
     {
         double weight = 0;
         double area = Math.min(block.width,block.height);
-        if(block.type==ABType.Wood)
-            weight += 1/(20 * area);
-        else if(block.type==ABType.Ice)
-            weight += 1/(10 * area);
-        else if(block.type==ABType.Stone)
-            weight += 1/(30 * area);
-        else if(block.type==ABType.Air)
-            weight += Integer.MAX_VALUE/block.getX();
+        if(block.type==ABType.Wood) {
+            weight += wood;
+            has_any_block_come = true;
+        }
+        else if(block.type==ABType.Ice) {
+            weight += ice;
+            has_any_block_come = true;
+        }
+        else if(block.type==ABType.Stone) {
+            weight += stone;
+            has_any_block_come = true;
+        }
+        else if(block.type==ABType.Air && has_any_block_come) {
+            weight += air;
+        }
+        else if (block.type == ABType.TNT) {
+            weight += tnt;
+            has_any_block_come = true;
+        }
+        else if (block.type == ABType.Pig) {
+            weight += pig;
+            has_any_block_come = true;
+        }
 
         return weight;
     }
@@ -380,51 +397,109 @@ public class HeuristicEngine {
         ArrayList<ABObject> allBlocks = getAllBlocks();
         if(pigs != null)
             allBlocks.addAll(pigs);
+        if(air_blocks != null)
+            allBlocks.addAll(air_blocks);
 
         for(ABObject obj: allBlocks)
         {
-            double factor = 0;
-            TrajectoryPlanner trajectory = new TrajectoryPlanner();
-            ArrayList<Point> release_points = trajectory.estimateLaunchPoint(sling_shot,new Point((int) obj.getX(), (int) obj.getY()));
+            if (obj.type != ABType.Air) {
+                double factor = 1;
+                has_any_block_come = false;
+                TrajectoryPlanner trajectory = new TrajectoryPlanner();
+                ArrayList<Point> release_points = trajectory.estimateLaunchPoint(sling_shot,new Point((int) obj.getX(), (int) obj.getY()));
 
-            for(Point p:release_points)
-            {
-                List<ABObject> trajectoryBlocks = getAllBlocks();
-
-                trajectory.setTrajectory(sling_shot, p);
-                ArrayList<Point> trajectory_points = trajectory._trajectory;
-                for(Point t:trajectory_points)
+                for(Point p:release_points)
                 {
-                    int flag=0;
-                    for(int i=0;i<hills.size();i++)
+                    List<ABObject> trajectoryBlocks = getAllBlocks();
+                    if (air_blocks != null) {
+                        trajectoryBlocks.addAll(air_blocks);
+                    }
+                    List<ABObject> removedBlocks = new LinkedList<ABObject>();
+                    trajectory.setTrajectory(sling_shot, p);
+                    ArrayList<Point> trajectory_points = trajectory._trajectory;
+                    for(Point t:trajectory_points)
                     {
-                        Poly h = (Poly) hills.get(i);
-                        if(h.polygon.contains(t) && t.getX()<=obj.getX())
+                        int flag=0;
+                        for(int i=0;i<hills.size();i++)
                         {
-                            flag=1;
-                            factor=Double.MIN_VALUE;
+                            Poly h = (Poly) hills.get(i);
+                            if(h.polygon.contains(t) && t.getX()<=obj.getX())
+                            {
+                                flag=1;
+                                factor=Double.MIN_VALUE;
+                                break;
+                            }
+                        }
+
+                        if(flag==1)
                             break;
-                        }
-                    }
-
-                    if(flag==1)
-                        break;
-
-                    for(ABObject block:trajectoryBlocks)
-                    {
-                        if(block != obj && block.getX() <= obj.getX() && block.contains(t))
+                        int length = 0;
+                        for(int i = 0; i < trajectoryBlocks.size(); i++)
                         {
-                            if(current_bird == ABType.RedBird || current_bird == ABType.BlueBird)
-                                factor+=assignDensity(block);
-                            else if (current_bird == ABType.YellowBird || current_bird==ABType.BlackBird)
-                                factor+=assignDensity(block);
-                            else //for White Bird
-                                factor+=assignDensity(block);
+                            if(trajectoryBlocks.get(i) != obj && trajectoryBlocks.get(i).getX() <= obj.getX() && trajectoryBlocks.get(i).contains(t))
+                            {
+                                ABObject block = trajectoryBlocks.get(i);
+                                if(block.angle > 0.785)
+                                    length += block.width;
+                                else
+                                    length += block.height;
+                                if(current_bird == ABType.RedBird)
+                                    factor+=assignDensity(block, 20, 10, 30, 5, 2, 20)*length/10.0;
+                                else if (current_bird == ABType.BlueBird)
+                                    factor += assignDensity(block, 20, 10, 30, 5, 2, 20)*length/10.0;
+                                else if (current_bird == ABType.YellowBird)
+                                    factor += assignDensity(block, 10, 20, 30, 5, 2, 10)*length/10.0;
+                                else if (current_bird == ABType.WhiteBird)
+                                    factor += assignDensity(block, 30, 20, 10, 5, 2, 10)*length/10.0;
+                                else //for Black Bird
+                                    factor+=assignDensity(block, 10, 20, 10, 5,2,5)*length/10.0;
+
+                                trajectoryBlocks.remove(block);
+                                i--;
+                                removedBlocks.add(block);
+                            }
                         }
                     }
+                    trajectoryBlocks.addAll(removedBlocks);
+                    double k = 100000.0;
+                    double length = 0;
+                    if (obj.angle > 0.785)
+                        length = obj.width;
+                    else
+                        length = obj.height;
+                    if(current_bird == ABType.RedBird)
+                        factor += assignDensity(obj, 20, 15, 40, 10, 5, 10)*length;
+                    else if (current_bird == ABType.YellowBird)
+                        factor += assignDensity(obj, 15, 15, 40, 10, 5, 10)*length;
+                    else if (current_bird == ABType.BlueBird)
+                        factor += assignDensity(obj, 20, 15, 40, 10, 5, 10)*length;
+                    else if (current_bird == ABType.BlackBird)
+                        factor += assignDensity(obj, 15, 15, 15, 10, 5, 5)*length;
+                    else if (current_bird == ABType.WhiteBird)
+                        factor += assignDensity(obj, 15, 15, 15, 10, 5, 5)*length;
+                    obj.penetrationFactor[release_points.indexOf(p)] = k/factor;
+                    // obj.penetrationFactor = factor;
                 }
-                obj.penetrationFactor = factor;
+                if(release_points.size() < 2)
+                    obj.penetrationFactor[1] = obj.penetrationFactor[0];
             }
+        }
+
+        double max_0 = Double.MIN_VALUE;
+        double max_1 = Double.MIN_VALUE;
+
+        for (ABObject obj: allBlocks) {
+            if (obj.type != ABType.Air) {
+                if (obj.penetrationFactor[0] > max_0)
+                    max_0 = obj.penetrationFactor[0];
+                if (obj.penetrationFactor[1] > max_1)
+                    max_1 = obj.penetrationFactor[1];
+            }
+        }
+
+        for (ABObject obj: allBlocks ) {
+            obj.penetrationFactor[0] = 100*obj.penetrationFactor[0]/max_0;
+            obj.penetrationFactor[1] = 100*obj.penetrationFactor[1]/max_1;
         }
     }
 
@@ -438,15 +513,15 @@ public class HeuristicEngine {
 
         for (ABObject block : allBlocks)
         {
-            block.bottomUpFactor = (0.25 * block.penetrationFactor) + (0.25 * block.displacementFactor) + (0.1 * block.supportFactor) + (0.4 * block.weakVicinityFactor);
-            System.out.println("Penetratoin : " + block.penetrationFactor);
+            block.bottomUpFactor = (0.25 * block.penetrationFactor[0]) + (0.25 * block.displacementFactor) + (0.1 * block.supportFactor) + (0.4 * block.weakVicinityFactor);
+            System.out.println("Penetratoin : " + block.penetrationFactor[0]);
             System.out.println("Displacement: "+block.displacementFactor);
             System.out.println("Suport : "+block.supportFactor);
             System.out.println("Bottom Up: " + block.bottomUpFactor);
         }
         for (ABObject block : allBlocks)
         {
-            block.topDownFactor = (0.2 * block.penetrationFactor) + (0.2 * block.displacementFactor) + (0.05 * block.downwardFactor) + (0.4 * block.weakVicinityFactor);
+            block.topDownFactor = (0.2 * block.penetrationFactor[1]) + (0.2 * block.displacementFactor) + (0.05 * block.downwardFactor) + (0.4 * block.weakVicinityFactor);
             System.out.println("DownwardFactor : " + block.downwardFactor);
             System.out.println("Top Down: " + block.topDownFactor);
         }

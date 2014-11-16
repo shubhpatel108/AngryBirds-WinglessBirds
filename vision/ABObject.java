@@ -37,7 +37,7 @@ public double downwardFactor;
 public double displacementFactor;
 
 //How easily a bird can penetrate through structure to hit the object
-public double penetrationFactor;
+public double[] penetrationFactor = new double[2];
  
 //factor to determine destruction caused when block is hit in intention to displace the base
 public double bottomUpFactor;
