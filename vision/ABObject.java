@@ -8,6 +8,8 @@
  *****************************************************************************/
 package ab.vision;
 
+import java.util.*;
+
 import java.awt.Point;
 import java.awt.Rectangle;
 
@@ -47,6 +49,13 @@ public double topDownFactor;
 
 //factor which tells the distant of the block from the Weak Point
 public double weakVicinityFactor;
+
+public double deltaBottomUp;
+public double deltaTopDown;
+public double avaerageDelta;
+public boolean isBottomUp = false;
+public List<ABObject> supporters;
+public List<ABObject> supportees;
 
 public ABObject(Rectangle mbr, ABType type) {
 	super(mbr);

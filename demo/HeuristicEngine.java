@@ -33,7 +33,7 @@ public class HeuristicEngine {
     private ABType current_bird;
     private Rectangle sling_shot;
     boolean has_any_block_come = false;
-
+    private List<SubStructure> sub_structures;
 
     public HeuristicEngine(List<ABObject> pigs, List<ABObject> wood, List<ABObject> ice, List<ABObject> stones,List<ABObject> TNT, BufferedImage screenShot, ABType current_bird, Rectangle sling_shot) {
 		this.image = screenShot;
@@ -48,6 +48,7 @@ public class HeuristicEngine {
         this.air_blocks = new LinkedList<ABObject>();
         this.current_bird = current_bird;
         this.sling_shot = sling_shot;
+        sub_structures = new LinkedList<SubStructure>();
     }
 
     List<ABObject> findAllHills(List<ABObject> all_objects)
@@ -74,26 +75,50 @@ public class HeuristicEngine {
         ArrayList<ABObject> allBlocks = getAllBlocks();
         for(ABObject block: allBlocks)
         {
-            for(ABObject pig:pigs)
+            SubStructure current = null;
+            for(int i=0; i<sub_structures.size();i++)
             {
-                Line2D.Double line = new Line2D.Double(block.getCenterX(),block.getCenterY(),pig.getCenterX(),pig.getCenterY());
-                double support=0,sup;
-                double inline_block_count = 1;
-                for(ABObject obj:allBlocks)
-                {
-                    if(line.intersects(obj))
-                    {
-                        sup = obj.getHeight()/obj.getWidth();
-                        support+= sup/(Math.min(obj.getHeight(), obj.getWidth())*(double)getBlockDensity(obj));
-                        System.out.println("+++++++++++++++++");
-                        System.out.println("Sup : " + sup);
-                        System.out.println("Support : " + support);
-                        System.out.println("+++++++++++++++++");
-                        inline_block_count+=1;
-                    }
-                }
-                block.supportFactor+=support/inline_block_count;
+                if(sub_structures.get(i).contains(block))
+                    current = sub_structures.get(i);
             }
+            if(current!=null)
+            {
+                for(ABObject pig:pigs)
+                {
+                    Line2D.Double line = new Line2D.Double(block.getCenterX(),block.getCenterY(),pig.getCenterX(),pig.getCenterY());
+                    double support=0,sup;
+                    double inline_block_count = 1;
+                    for(ABObject obj:allBlocks)
+                    {
+                        if(line.intersects(obj) || current.contains(obj) && obj.id!=block.id)
+                        {
+                            sup = obj.getHeight()/obj.getWidth();
+                            support+= sup/(Math.min(obj.getHeight(), obj.getWidth())*(double)getBlockDensity(obj));
+                            inline_block_count+=1;
+                        }
+                    }
+                    block.supportFactor+=support/inline_block_count;
+                }
+                block.supportFactor*=100000;
+                if(block.type==ABType.Wood)
+                    block.supportFactor /= 15;
+                else if(block.type==ABType.Ice)
+                    block.supportFactor /= 10;
+                else if(block.type==ABType.Stone)
+                    block.supportFactor /= 20;
+            }
+        }
+        double max = 0;
+        for(ABObject obj:allBlocks)
+        {
+            if(obj.supportFactor>max)
+            {
+                max = obj.supportFactor;
+            }
+        }
+        for(ABObject obj:allBlocks)
+        {
+            obj.supportFactor = 100*obj.supportFactor/max;
         }
         return;
     }
@@ -503,9 +528,9 @@ public class HeuristicEngine {
         }
     }
 
-    public ABObject[][] computeFinalBlocks() {
+    public ArrayList<ABObject> computeFinalBlocks() {
 
-        ABObject[][] final_list = new ABObject[5][2];
+        ArrayList<ABObject> final_list = new ArrayList<ABObject>();
 
         ArrayList<ABObject> allBlocks = getAllBlocks();
         if (pigs != null)
@@ -514,16 +539,10 @@ public class HeuristicEngine {
         for (ABObject block : allBlocks)
         {
             block.bottomUpFactor = (0.25 * block.penetrationFactor[0]) + (0.25 * block.displacementFactor) + (0.1 * block.supportFactor) + (0.4 * block.weakVicinityFactor);
-            System.out.println("Penetratoin : " + block.penetrationFactor[0]);
-            System.out.println("Displacement: "+block.displacementFactor);
-            System.out.println("Suport : "+block.supportFactor);
-            System.out.println("Bottom Up: " + block.bottomUpFactor);
         }
         for (ABObject block : allBlocks)
         {
             block.topDownFactor = (0.2 * block.penetrationFactor[1]) + (0.2 * block.displacementFactor) + (0.05 * block.downwardFactor) + (0.4 * block.weakVicinityFactor);
-            System.out.println("DownwardFactor : " + block.downwardFactor);
-            System.out.println("Top Down: " + block.topDownFactor);
         }
 
         //BottomUp
@@ -539,11 +558,8 @@ public class HeuristicEngine {
             }
         }
 
-        int count = 0;
-        for (int i = 0; i < 5; i++)
-        {
-            final_list[i][0] = allBlocks.get(count++);
-        }
+        ArrayList<ABObject> bottomUp = new ArrayList<ABObject>();
+        bottomUp.addAll(allBlocks);
 
         //TopDown
         for (int i = 0; i < allBlocks.size(); i++) {
@@ -558,10 +574,61 @@ public class HeuristicEngine {
             }
         }
 
-        count = 0;
-        for (int i = 0; i < 5; i++) {
-            final_list[i][1] = allBlocks.get(count++);
+        ArrayList<ABObject> topDown = new ArrayList<ABObject>();
+        topDown.addAll(allBlocks);
+
+                for (ABObject obj : bottomUp) {
+            obj.deltaBottomUp = bottomUp.get(0).bottomUpFactor - obj.bottomUpFactor;
         }
+
+        double avaeragebotdelta = 0;
+        for (ABObject obj : bottomUp) {
+            avaeragebotdelta += obj.deltaBottomUp;
+        }
+
+        avaeragebotdelta = avaeragebotdelta / bottomUp.size();
+        for (ABObject obj : bottomUp) {
+            obj.deltaBottomUp = obj.deltaBottomUp / avaeragebotdelta;
+        }
+
+
+        for (ABObject obj : topDown) {
+            obj.deltaTopDown = topDown.get(0).topDownFactor - obj.topDownFactor;
+            //obj.avaerageDelta = (obj.deltaBottomUp + obj.deltaTopDown) / 2;
+        }
+        double averagetopdelta = 0;
+        for (ABObject obj : topDown)
+        {
+            averagetopdelta+=obj.deltaTopDown;
+        }
+
+        averagetopdelta = averagetopdelta/topDown.size();
+        for(ABObject obj:topDown)
+        {
+            obj.deltaTopDown = obj.deltaTopDown/averagetopdelta;
+            obj.avaerageDelta = (obj.deltaBottomUp + obj.deltaTopDown)/2;
+        }
+
+        final_list.addAll(topDown);
+        for(int i=0;i<final_list.size()-1;i++)
+        {
+            for(int j=i+1;j<final_list.size();j++)
+            {
+                if(final_list.get(j).avaerageDelta<final_list.get(i).avaerageDelta)
+                {
+                    ABObject temp = final_list.get(j);
+                    final_list.set(j,final_list.get(i));
+                    final_list.set(i,temp);
+                }
+            }
+        }
+
+        for(ABObject block: final_list)
+        {
+            if(block.deltaTopDown>=block.deltaBottomUp)
+                block.isBottomUp=true;
+        }
+
         return final_list;
     }
 
