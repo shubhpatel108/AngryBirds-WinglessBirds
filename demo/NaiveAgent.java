@@ -169,9 +169,9 @@ public class NaiveAgent implements Runnable {
                     he.calcDisplacementFactor();
                     he.calcPenetrationFactor();
                     he.calcWeakVicinity();
-                    ABObject[][] finalCandidateBlocks = he.computeFinalBlocks();
+                    ArrayList<ABObject> finalCandidateBlocks = he.computeFinalBlocks();
 
-                    ABObject blockToHit = finalCandidateBlocks[0][1];
+                    ABObject blockToHit = he.filterFinalTarget(finalCandidateBlocks);
 //                    ABObject blockToHit = he.computeFinalBlocks2();
                     System.out.println("BLOCK: " + blockToHit);
                     if(blockToHit==null)

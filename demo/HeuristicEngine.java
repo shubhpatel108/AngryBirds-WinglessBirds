@@ -852,4 +852,32 @@ public class HeuristicEngine {
         }
         return max_score;
     }
+
+    public ABObject filterFinalTarget(ArrayList<ABObject> possible_targets)
+    {
+        //TrajectoryPlanner tp = new TrajectoryPlanner();
+        for(ABObject obj:possible_targets)
+        {
+            int belonging_substructure_index = 0;
+            for(SubStructure s: sub_structures)
+            {
+                if(s.contains(obj))
+                    break;
+                belonging_substructure_index++;
+            }
+            if(belonging_substructure_index<sub_structures.size())
+            {
+                SubStructure belongingSubstructure = sub_structures.get(belonging_substructure_index);
+                for(ABObject pig : pigs)
+                {
+                    if(((Math.abs(belongingSubstructure.getMaxX()-pig.getCenterX())<=Math.abs(belongingSubstructure.getMaxY()-belongingSubstructure.getMinY())/2.0) && (belongingSubstructure.getMinY()<pig.getCenterY())) || ((pig.getCenterX()>belongingSubstructure.getMinX() && pig.getCenterX()<belongingSubstructure.getMaxX() && pig.getCenterY()>belongingSubstructure.getMinY() && pig.getCenterY()<belongingSubstructure.getMaxY())) )
+                    {
+                        return obj;
+                    }
+                }
+            }
+        }
+        return possible_targets.get(0);
+    }
+
 }
