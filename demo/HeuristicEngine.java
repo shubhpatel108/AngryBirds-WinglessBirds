@@ -70,7 +70,7 @@ public class HeuristicEngine {
         return block.type==ABType.Wood? 2:block.type==ABType.Stone?40:1;
     }
 
-    public void calcSupportFactor()
+    public void calcStrengthGivingFactor()
     {
         ArrayList<ABObject> allBlocks = getAllBlocks();
         for(ABObject block: allBlocks)
@@ -137,7 +137,7 @@ public class HeuristicEngine {
         return allBlocks;
     }
 
-    public void calcDownwardFactor()
+    public void calcGravityEffectFactor()
     {
         ArrayList<ABObject> allBlocks = getAllBlocks();
 
@@ -243,7 +243,7 @@ public class HeuristicEngine {
         return air;
     }
 
-    public void calcDisplacementFactor()
+    public void calcHorizontalEffectFactor()
     {
         ArrayList<ABObject> allBlocks = getAllBlocks();
         if(pigs != null)
@@ -418,7 +418,7 @@ public class HeuristicEngine {
         return weight;
     }
 
-    public void calcPenetrationFactor()
+    public void calcReachingFactor()
     {
         // ArrayList<ABObject> allBlocks = getAllBlocks();
         

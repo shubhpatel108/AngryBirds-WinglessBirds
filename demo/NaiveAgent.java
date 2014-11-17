@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import ab.demo.HeuristicEngine;
 import ab.demo.other.ActionRobot;
 import ab.demo.other.Shot;
 import ab.planner.TrajectoryPlanner;
@@ -27,7 +26,6 @@ import ab.vision.ABObject;
 import ab.vision.GameStateExtractor;
 import ab.vision.GameStateExtractor.GameState;
 import ab.vision.Vision;
-import ab.demo.StructureStudy;
 import ab.vision.ABType;
 
 
@@ -42,7 +40,7 @@ public class NaiveAgent implements Runnable {
 	private boolean firstShot;
 	private Point prevTarget;
 
-    public ArrayList<Double> normalizedscorelist = new ArrayList<Double>();
+    private ArrayList<Double> normalizedScoreList = new ArrayList<Double>();
     public ArrayList<Integer> levellist = new ArrayList<Integer>();
 	public boolean isrepeating = false;
     int repeatingcurrentlevel = 1;
@@ -64,11 +62,15 @@ public class NaiveAgent implements Runnable {
 	// run the client
 	public void run() {
 
-		aRobot.loadLevel(currentLevel);
+        for(int i=0;i<21;i++)
+            normalizedScoreList.add(i, (double) -999);
+
+        aRobot.loadLevel(currentLevel);
 		while (true) {
 			GameState state = solve();
             if(isrepeating == false) {
-				if (state == GameState.WON) {
+				if (state == GameState.WON)
+                {
 					try {
 						Thread.sleep(3000);
 					} catch (InterruptedException e) {
@@ -89,26 +91,27 @@ public class NaiveAgent implements Runnable {
 						System.out.println(" Level " + key
 								+ " Score: " + scores.get(key) + " ");
 					}
-					if(currentLevel == 8)
+					/*if(currentLevel == 8)
                     {
                         isrepeating = true;
-                        for(int i = 1;i <=normalizedscorelist.size(); i++)
+                        for(int i = 0;i < normalizedScoreList.size(); i++)
                         {
                             levellist.add(i, i);
                         }
-                        for(int i=0; i< normalizedscorelist.size()-1; i++){
-                            for(int j = i + 1; j < normalizedscorelist.size(); j++) {
-                                if(normalizedscorelist.get(i) > normalizedscorelist.get(j))
+                        for(int i=0; i< normalizedScoreList.size()-1; i++){
+                            for(int j = i + 1; j < normalizedScoreList.size(); j++) {
+                                if(normalizedScoreList.get(i) > normalizedScoreList.get(j))
                                 {
                                     int temp = levellist.get(i);
-                                    levellist.add(i, levellist.get(j));
-                                    levellist.add(j, temp);
+                                    levellist.set(i, levellist.get(j));
+                                    levellist.set(j, temp);
                                 }
                             }
                         }
                         aRobot.loadLevel(levellist.get(0));
                     }
                     else
+                    */
                     {
                         aRobot.loadLevel(++currentLevel);
                         // make a new trajectory planner whenever a new level is entered
@@ -122,17 +125,17 @@ public class NaiveAgent implements Runnable {
 				if(currentLevel == 8)
                     {
                         isrepeating = true;
-                        for(int i = 1;i <=normalizedscorelist.size(); i++)
+                        for(int i = 1;i < normalizedScoreList.size(); i++)
                         {
                             levellist.add(i, i);
                         }
-                        for(int i=0; i< normalizedscorelist.size()-1; i++){
-                            for(int j = i + 1; j < normalizedscorelist.size(); j++) {
-                                if(normalizedscorelist.get(i) > normalizedscorelist.get(j))
+                        for(int i=0; i< normalizedScoreList.size()-1; i++){
+                            for(int j = i + 1; j < normalizedScoreList.size(); j++) {
+                                if(normalizedScoreList.get(i) > normalizedScoreList.get(j))
                                 {
                                     int temp = levellist.get(i);
-                                    levellist.add(i, levellist.get(j));
-                                    levellist.add(j, temp);
+                                    levellist.set(i, levellist.get(j));
+                                    levellist.set(j, temp);
                                 }
                             }
                         }
@@ -140,8 +143,9 @@ public class NaiveAgent implements Runnable {
                     }
                     else {
                         System.out.println("Restart");
-                        aRobot.loadLevel(++currentLevel);
+                        aRobot.loadLevel(currentLevel);
                     }
+                aRobot.loadLevel(currentLevel);
 			} 
 			else
 			{
@@ -254,10 +258,10 @@ public class NaiveAgent implements Runnable {
 						double[][][] vectoredStructure = ss.calulate_vectors(outerRectangle);
 						he.makeAirBlocks(vectoredStructure,outerRectangle);
 	                    he.generateSubStructures();
-	                    he.calcSupportFactor();
-	                    he.calcDownwardFactor();
-	                    he.calcDisplacementFactor();
-	                    he.calcPenetrationFactor();
+	                    he.calcStrengthGivingFactor();
+	                    he.calcGravityEffectFactor();
+	                    he.calcHorizontalEffectFactor();
+	                    he.calcReachingFactor();
 	                    he.calcWeakVicinity();
 
 
@@ -316,9 +320,9 @@ public class NaiveAgent implements Runnable {
 						case WhiteBird:
 							tapInterval =  70 + randomGenerator.nextInt(20);break; // 70-90% of the way
 						case BlackBird:
-							tapInterval =  70 + randomGenerator.nextInt(20);break; // 70-90% of the way
+							tapInterval =  70 +15;break;// randomGenerator.nextInt(20);break; // 70-90% of the way
 						case BlueBird:
-							tapInterval =  65 + 20/*randomGenerator.nextInt(20)*/;break; // 65-85% of the way
+							tapInterval =  65 + 15/*randomGenerator.nextInt(20)*/;break; // 65-85% of the way
 						default:
 							tapInterval =  60;
 						}
@@ -371,7 +375,8 @@ public class NaiveAgent implements Runnable {
                                     int finalScore = stateExtractor.getScoreEndGame(screenshot);
                                     int totalScore = he.getMaximumScore();
                                     int scoreGained = finalScore - beginScore;
-                                    normalizedscorelist.add(currentLevel,(double)(100*finalScore)/maxscore);
+                                    System.out.println("Current Level is: "+currentLevel+"...!!!");
+                                    normalizedScoreList.add(currentLevel - 1, (double) (100 * finalScore) / maxscore);
                                 }
 							}
 						}
