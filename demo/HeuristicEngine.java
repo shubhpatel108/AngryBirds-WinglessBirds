@@ -852,4 +852,31 @@ public class HeuristicEngine {
         }
         return max_score;
     }
+
+    public ABObject filter_final_block(ArrayList<ABObject> target_blocks)
+    {
+        for(ABObject obj:target_blocks)
+        {
+            int belonging_ss_index = 0;
+            for(SirMateSubStructure s: subStructures)
+            {
+                if(s.contains(obj))
+                    break;
+                belonging_ss_index++;
+            }
+            if(belonging_ss_index<subStructures.size())
+            {
+                SubStructure belongingSubstructure = sub_structures.get(belonging_ss_index);
+                for(ABObject pig : pigs)
+                {
+                    if(((Math.abs(belongingSubstructure.getMaxX()-pig.getCenterX())<=Math.abs(belongingSubstructure.getMaxY()-belongingSubstructure.getMinY())/2.0) && (belongingSubstructure.getMinY()<pig.getCenterY())) || ((pig.getCenterX()>belongingSubstructure.getMinX() && pig.getCenterX()<belongingSubstructure.getMaxX() && pig.getCenterY()>belongingSubstructure.getMinY() && pig.getCenterY()<belongingSubstructure.getMaxY())) )
+                    {
+                        return obj;
+                    }
+                }
+            }
+        }
+        return target_blocks.get(0);
+    }
+
 }
