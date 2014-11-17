@@ -855,7 +855,6 @@ public class HeuristicEngine {
 
     public ABObject filterFinalTarget(ArrayList<ABObject> possible_targets)
     {
-        //TrajectoryPlanner tp = new TrajectoryPlanner();
         for(ABObject obj:possible_targets)
         {
             int belonging_substructure_index = 0;
