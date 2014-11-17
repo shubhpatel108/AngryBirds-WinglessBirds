@@ -253,10 +253,11 @@ public class HeuristicEngine {
 
         for(ABObject obj: allBlocks)
         {
-            if(obj.type!=ABType.Air) {
+            if(obj.type!=ABType.Air) 
+            {
                 Line2D.Double line = new Line2D.Double(obj.getX(),obj.getY(),getLastX(),obj.getY());
                 double weight = 0;
-                int max_value = Integer.MAX_VALUE;
+                int max_value = 10000;
                 if(current_bird == ABType.RedBird)
                 {
                     for(ABObject block: allBlocks)
@@ -368,14 +369,14 @@ public class HeuristicEngine {
         double max = 0;
         for(ABObject obj:allBlocks)
         {
-            if(notAirBlock(obj) && obj.displacementFactor>max)
+            if(obj.type!=ABType.Air && obj.displacementFactor>max)
                 max = obj.displacementFactor;
 
         }
 
         for(ABObject object:allBlocks)
         {
-            if(notAirBlock(object))
+            if(object.type!=ABType.Air)
                 object.displacementFactor = 100*object.displacementFactor/max;
         }
 
@@ -419,7 +420,10 @@ public class HeuristicEngine {
 
     public void calcPenetrationFactor()
     {
-        ArrayList<ABObject> allBlocks = getAllBlocks();
+        // ArrayList<ABObject> allBlocks = getAllBlocks();
+        
+
+        List<ABObject> allBlocks = vision.getVisionRealShape().findObjects();
         if(pigs != null)
             allBlocks.addAll(pigs);
         if(air_blocks != null)
