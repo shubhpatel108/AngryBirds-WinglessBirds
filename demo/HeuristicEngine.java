@@ -538,11 +538,11 @@ public class HeuristicEngine {
 
         for (ABObject block : allBlocks)
         {
-            block.bottomUpFactor = (0.25 * block.penetrationFactor[0]) + (0.25 * block.displacementFactor) + (0.1 * block.supportFactor) + (0.4 * block.weakVicinityFactor);
+            block.bottomUpFactor = (0.65 * block.penetrationFactor[0]) + (0.10 * block.displacementFactor) + (0.25 * block.supportFactor); //+ (0.4 * block.weakVicinityFactor);
         }
         for (ABObject block : allBlocks)
         {
-            block.topDownFactor = (0.2 * block.penetrationFactor[1]) + (0.2 * block.displacementFactor) + (0.05 * block.downwardFactor) + (0.4 * block.weakVicinityFactor);
+            block.topDownFactor = (0.65 * block.penetrationFactor[1]) + (0.15 * block.displacementFactor) + (0.20 * block.downwardFactor); //+ (0.4 * block.weakVicinityFactor);
         }
 
         //BottomUp
@@ -577,7 +577,7 @@ public class HeuristicEngine {
         ArrayList<ABObject> topDown = new ArrayList<ABObject>();
         topDown.addAll(allBlocks);
 
-                for (ABObject obj : bottomUp) {
+        for (ABObject obj : bottomUp) {
             obj.deltaBottomUp = bottomUp.get(0).bottomUpFactor - obj.bottomUpFactor;
         }
 
@@ -594,8 +594,8 @@ public class HeuristicEngine {
 
         for (ABObject obj : topDown) {
             obj.deltaTopDown = topDown.get(0).topDownFactor - obj.topDownFactor;
-            //obj.avaerageDelta = (obj.deltaBottomUp + obj.deltaTopDown) / 2;
         }
+        
         double averagetopdelta = 0;
         for (ABObject obj : topDown)
         {
@@ -877,6 +877,26 @@ public class HeuristicEngine {
             }
         }
         return possible_targets.get(0);
+    }
+
+    public void generateSubStructures()
+    {
+        ArrayList<ABObject> allBlocks = getAllBlocks();
+
+        SubStructure.allObjects = allBlocks;
+        while (SubStructure.allObjects.size() > 0) {
+            sub_structures.add(new SubStructure());
+            sub_structures.get(sub_structures.size() - 1).addBlocks(allBlocks.get(0));
+        }
+
+        int count = 1;
+        for (SubStructure s : sub_structures) {
+            System.out.println("count " + count);
+            count++;
+            for (ABObject o : s.structureObjects) {
+                System.out.println(o);
+            }
+        }
     }
 
 }
